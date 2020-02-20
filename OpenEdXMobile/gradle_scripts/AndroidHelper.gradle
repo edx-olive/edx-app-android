@@ -1,0 +1,71 @@
+import groovy.json.JsonBuilder
+
+class AndroidHelper {
+    static def saveProcessedConfig(project, config) {
+        def path = project.file('assets/config')
+        path.mkdirs()
+        def jsonWriter = new FileWriter(path.absolutePath + '/config.json')
+        def builder = new JsonBuilder(config)
+        jsonWriter.withWriter {
+            builder.writeTo(it)
+        }
+    }
+
+    static def saveGoogleServiceJson(project, firebaseConfig) {
+        def googleServiceJsonPath = project.projectDir.toString() + "/google-services.json"
+        new FileWriter(googleServiceJsonPath).withWriter {
+            getGoogleServicesContent(firebaseConfig).writeTo(it)
+        }
+    }
+
+    static def getGoogleServicesContent(firebaseConfig) {
+        def jsonBuilder = new JsonBuilder()
+        jsonBuilder {
+            project_info {
+                project_number firebaseConfig.get('PROJECT_NUMBER')
+                firebase_url "https://" + firebaseConfig.get("PROJECT_ID") + ".firebaseio.com"
+                project_id firebaseConfig.get("PROJECT_ID")
+                storage_bucket firebaseConfig.get("PROJECT_ID") + ".appspot.com"
+            }
+            client([{
+                        client_info {
+                            'mobilesdk_app_id' "1:" + firebaseConfig.get('PROJECT_NUMBER') + ":android:c04089bb49270266"
+                            'android_client_info' {
+                                'package_name' 'org.edx.mobile'
+                            }
+                        }
+                        oauth_client([
+                                {
+                                    'client_id' firebaseConfig.get('oauth_client_id')
+                                    'client_type' 3
+                                }
+                        ])
+                        api_key(
+                                [{
+                                     'current_key' firebaseConfig.get('CURRENT_KEY')
+                                 }])
+                        services {
+                            appinvite_service {
+                                other_platform_oauth_client([{
+                                                                 'client_id' firebaseConfig.get('oauth_client_id')
+                                                                 'client_type' 3
+                                                             },
+                                                             {
+                                                                 'client_id' firebaseConfig.get('other_platform_oauth_client_id')
+                                                                 'client_type' 2
+                                                                 ios_info {
+                                                                     'bundle_id' 'org.edx.mobile'
+                                                                     'app_store_id' firebaseConfig.get('APP_STORE_ID')
+                                                                 }
+                                                             }
+                                ])
+                            }
+                        }
+                    }])
+            configuration_version '1'
+        }
+        return jsonBuilder
+    }
+}
+
+ext.AndroidHelper = AndroidHelper
