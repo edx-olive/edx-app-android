@@ -1,13 +1,11 @@
 package org.edx.mobile.model.course;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import org.edx.mobile.R;
 import org.edx.mobile.base.MainApplication;
 import org.edx.mobile.logger.Logger;
 import org.edx.mobile.model.Filter;
-import org.edx.mobile.model.api.AuthorizationDenialReason;
 import org.edx.mobile.model.api.IPathNode;
 import org.edx.mobile.util.VideoUtil;
 
@@ -37,32 +35,8 @@ public class CourseComponent implements IBlock, IPathNode {
     private String courseId;
     private String format;
     private String dueDate;
-    private String authorizationDenialMessage;
-    private AuthorizationDenialReason authorizationDenialReason;
 
-    public CourseComponent() {
-    }
-
-    public CourseComponent(@NonNull CourseComponent other) {
-        this.id = other.id;
-        this.blockId = other.blockId;
-        this.type = other.type;
-        this.name = other.name;
-        this.graded = other.graded;
-        this.multiDevice = other.multiDevice;
-        this.blockUrl = other.blockUrl;
-        this.webUrl = other.webUrl;
-        this.blockCount = other.blockCount;
-        this.parent = null;
-        this.root = new CourseComponent();
-        this.root.courseId = other.root.courseId;
-        this.children = other.children;
-        this.courseId = other.courseId;
-        this.format = other.format;
-        this.dueDate = other.dueDate;
-        this.authorizationDenialMessage = other.authorizationDenialMessage;
-        this.authorizationDenialReason = other.authorizationDenialReason;
-    }
+    public CourseComponent(){}
 
     /**
      *
@@ -80,8 +54,6 @@ public class CourseComponent implements IBlock, IPathNode {
         this.multiDevice =  blockModel.studentViewMultiDevice;
         this.format = blockModel.format;
         this.dueDate = blockModel.dueDate;
-        this.authorizationDenialMessage = blockModel.authorizationDenialMessage;
-        this.authorizationDenialReason = blockModel.authorizationDenialReason;
         this.blockCount = blockModel.blockCounts == null ? new BlockCount() : blockModel.blockCounts;
         this.parent = parent;
         if ( parent == null){
@@ -467,7 +439,6 @@ public class CourseComponent implements IBlock, IPathNode {
         return null;
     }
 
-    public AuthorizationDenialReason getAuthorizationDenialReason() {
-        return authorizationDenialReason;
-    }
+
+
 }

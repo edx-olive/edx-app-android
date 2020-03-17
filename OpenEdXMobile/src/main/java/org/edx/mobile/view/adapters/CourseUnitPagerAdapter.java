@@ -5,8 +5,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import org.edx.mobile.model.api.AuthorizationDenialReason;
-import org.edx.mobile.model.api.CourseUpgradeResponse;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
 import org.edx.mobile.model.course.BlockType;
 import org.edx.mobile.model.course.CourseComponent;
@@ -14,17 +12,14 @@ import org.edx.mobile.model.course.DiscussionBlockModel;
 import org.edx.mobile.model.course.HtmlBlockModel;
 import org.edx.mobile.model.course.VideoBlockModel;
 import org.edx.mobile.util.Config;
-import org.edx.mobile.util.VideoUtil;
-import org.edx.mobile.view.LockedCourseUnitFragment;
-import org.edx.mobile.view.CourseBaseActivity;
 import org.edx.mobile.view.CourseUnitDiscussionFragment;
 import org.edx.mobile.view.CourseUnitEmptyFragment;
 import org.edx.mobile.view.CourseUnitFragment;
 import org.edx.mobile.view.CourseUnitMobileNotSupportedFragment;
 import org.edx.mobile.view.CourseUnitOnlyOnYoutubeFragment;
-import org.edx.mobile.view.CourseUnitVideoPlayerFragment;
+import org.edx.mobile.view.CourseUnitVideoFragment;
+import org.edx.mobile.view.CourseUnitYoutubeVideoFragment;
 import org.edx.mobile.view.CourseUnitWebViewFragment;
-import org.edx.mobile.view.CourseUnitYoutubePlayerFragment;
 
 import java.util.List;
 
@@ -32,20 +27,17 @@ public class CourseUnitPagerAdapter extends FragmentStatePagerAdapter {
     private Config config;
     private List<CourseComponent> unitList;
     private EnrolledCoursesResponse courseData;
-    private CourseUpgradeResponse courseUpgradeData;
     private CourseUnitFragment.HasComponent callback;
 
     public CourseUnitPagerAdapter(FragmentManager manager,
                                   Config config,
                                   List<CourseComponent> unitList,
                                   EnrolledCoursesResponse courseData,
-                                  CourseUpgradeResponse courseUpgradeData,
                                   CourseUnitFragment.HasComponent callback) {
         super(manager);
         this.config = config;
         this.unitList = unitList;
         this.courseData = courseData;
-        this.courseUpgradeData = courseUpgradeData;
         this.callback = callback;
     }
 
@@ -66,55 +58,33 @@ public class CourseUnitPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int pos) {
-        final CourseComponent unit = getUnit(pos);
-        // FIXME: Remove this code once LEARNER-6713 is merged
-        final CourseComponent minifiedUnit;
-        {
-            // Create a deep copy of original CourseComponent object with `root` and `parent` objects
-            // removed to save memory.
-            if (unit instanceof VideoBlockModel) {
-                minifiedUnit = new VideoBlockModel((VideoBlockModel) unit);
-            } else if (unit instanceof DiscussionBlockModel) {
-                minifiedUnit = new DiscussionBlockModel((DiscussionBlockModel) unit);
-            } else if (unit instanceof HtmlBlockModel) {
-                minifiedUnit = new HtmlBlockModel((HtmlBlockModel) unit);
-            } else minifiedUnit = new CourseComponent(unit);
+        CourseComponent unit = getUnit(pos);
+        CourseUnitFragment unitFragment;
+        Boolean youtubeVideo = (unit instanceof VideoBlockModel && ((VideoBlockModel) unit).getData().encodedVideos.getYoutubeVideoInfo() != null);
+        //FIXME - for the video, let's ignore studentViewMultiDevice for now
+        if (isCourseUnitVideo(unit)) {
+            unitFragment = CourseUnitVideoFragment.newInstance((VideoBlockModel) unit, (pos < unitList.size()), (pos > 0));
+        } else if (youtubeVideo && config.getEmbeddedYoutubeConfig().isYoutubeEnabled()) {
+            unitFragment = CourseUnitYoutubeVideoFragment.newInstance((VideoBlockModel) unit, (pos < unitList.size()), (pos > 0));
+        } else if (youtubeVideo) {
+            unitFragment = CourseUnitOnlyOnYoutubeFragment.newInstance(unit);
+        } else if (config.isDiscussionsEnabled() && unit instanceof DiscussionBlockModel) {
+            unitFragment = CourseUnitDiscussionFragment.newInstance(unit, courseData);
+        } else if (!unit.isMultiDevice()) {
+            unitFragment = CourseUnitMobileNotSupportedFragment.newInstance(unit);
+        } else if (unit.getType() != BlockType.VIDEO &&
+                unit.getType() != BlockType.HTML &&
+                unit.getType() != BlockType.OTHERS &&
+                unit.getType() != BlockType.DISCUSSION &&
+                unit.getType() != BlockType.PROBLEM) {
+            unitFragment = CourseUnitEmptyFragment.newInstance(unit);
+        } else if (unit instanceof HtmlBlockModel) {
+            unitFragment = CourseUnitWebViewFragment.newInstance((HtmlBlockModel) unit);
         }
 
-        CourseUnitFragment unitFragment;
-        final boolean isYoutubeVideo = (minifiedUnit instanceof VideoBlockModel && ((VideoBlockModel) minifiedUnit).getData().encodedVideos.getYoutubeVideoInfo() != null);
-        if (minifiedUnit.getAuthorizationDenialReason() == AuthorizationDenialReason.FEATURE_BASED_ENROLLMENTS) {
-            if (courseUpgradeData == null) {
-                unitFragment = CourseUnitMobileNotSupportedFragment.newInstance(minifiedUnit);
-            } else {
-                unitFragment = LockedCourseUnitFragment.newInstance(minifiedUnit, courseData, courseUpgradeData);
-            }
-        }
-        //FIXME - for the video, let's ignore studentViewMultiDevice for now
-        else if (isCourseUnitVideo(minifiedUnit)) {
-            final VideoBlockModel videoBlockModel = (VideoBlockModel) minifiedUnit;
-            videoBlockModel.setVideoThumbnail(courseData.getCourse().getCourse_image());
-            unitFragment = CourseUnitVideoPlayerFragment.newInstance(videoBlockModel, (pos < unitList.size()), (pos > 0));
-        } else if (isYoutubeVideo && config.getYoutubePlayerConfig().isYoutubePlayerEnabled() && VideoUtil.isYoutubeAPISupported(((CourseBaseActivity) callback).getApplicationContext())) {
-            unitFragment = CourseUnitYoutubePlayerFragment.newInstance((VideoBlockModel) minifiedUnit);
-        } else if (isYoutubeVideo) {
-            unitFragment = CourseUnitOnlyOnYoutubeFragment.newInstance(minifiedUnit);
-        } else if (config.isDiscussionsEnabled() && minifiedUnit instanceof DiscussionBlockModel) {
-            unitFragment = CourseUnitDiscussionFragment.newInstance(minifiedUnit, courseData);
-        } else if (!minifiedUnit.isMultiDevice()) {
-            unitFragment = CourseUnitMobileNotSupportedFragment.newInstance(minifiedUnit);
-        } else if (minifiedUnit.getType() != BlockType.VIDEO &&
-                minifiedUnit.getType() != BlockType.HTML &&
-                minifiedUnit.getType() != BlockType.OTHERS &&
-                minifiedUnit.getType() != BlockType.DISCUSSION &&
-                minifiedUnit.getType() != BlockType.PROBLEM) {
-            unitFragment = CourseUnitEmptyFragment.newInstance(minifiedUnit);
-        } else if (minifiedUnit instanceof HtmlBlockModel) {
-            unitFragment = CourseUnitWebViewFragment.newInstance((HtmlBlockModel) minifiedUnit);
-        }
         //fallback
         else {
-            unitFragment = CourseUnitMobileNotSupportedFragment.newInstance(minifiedUnit);
+            unitFragment = CourseUnitMobileNotSupportedFragment.newInstance(unit);
         }
 
         unitFragment.setHasComponentCallback(callback);

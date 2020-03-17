@@ -10,7 +10,6 @@ import org.edx.mobile.util.UrlUtil;
 import org.edx.mobile.util.images.CourseCardUtils;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +21,6 @@ public class CourseEntry implements Serializable {
     private String start; // start date
     private String course_image;
     private String end; // completion date
-    private String dynamic_upgrade_deadline; // Upgrade deadline to get unlimited access to the course as long as it exists.
     private String start_display;
     private StartType start_type;
     @NonNull private String name;
@@ -61,16 +59,8 @@ public class CourseEntry implements Serializable {
         return UrlUtil.makeAbsolute(course_image, baseURL);
     }
 
-    public String getCourse_image() {
-        return course_image;
-    }
-
     public void setCourse_image(String course_image) {
         this.course_image = course_image;
-    }
-
-    public String getDynamicUpgradeDeadline() {
-        return dynamic_upgrade_deadline;
     }
 
     public String getEnd() {
@@ -152,11 +142,11 @@ public class CourseEntry implements Serializable {
     public void setCoursewareAccess(CoursewareAccess access) { this.courseware_access = access; }
 
     public boolean isStarted() {
-        return CourseCardUtils.isDatePassed(new Date(), start);
+        return CourseCardUtils.isStarted(start);
     }
 
     public boolean isEnded() {
-        return CourseCardUtils.isDatePassed(new Date(), end);
+        return CourseCardUtils.isEnded(end);
     }
 
     public boolean hasUpdates() {

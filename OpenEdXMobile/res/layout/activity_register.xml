@@ -51,6 +51,8 @@
 
                 <include layout="@layout/panel_social_auth" />
 
+                <include layout="@layout/panel_saml_login"/>
+
                 <org.edx.mobile.view.custom.DividerWithTextView
                     android:id="@+id/or_signup_with_email_title"
                     android:layout_width="match_parent"

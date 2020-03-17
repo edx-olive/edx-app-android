@@ -71,7 +71,7 @@
                         android:paddingStart="-4dp"
                         android:textColorHint="@color/grey_text">
 
-                        <android.support.v7.widget.AppCompatEditText
+                        <android.support.design.widget.TextInputEditText
                             android:id="@+id/email_et"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
                         android:paddingStart="-4dp"
                         android:textColorHint="@color/grey_text">
 
-                        <android.support.v7.widget.AppCompatEditText
+                        <android.support.design.widget.TextInputEditText
                             android:id="@+id/password_et"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -145,6 +145,11 @@
                         <include
                             android:id="@+id/social_auth"
                             layout="@layout/panel_social_auth" />
+
+                        <include
+                            android:id="@+id/saml_login"
+                            layout="@layout/panel_saml_login"/>
+
                     </LinearLayout>
 
                     <TextView

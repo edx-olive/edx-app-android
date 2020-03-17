@@ -10,15 +10,13 @@ import org.edx.mobile.event.EnrolledInCourseEvent;
 import org.edx.mobile.http.callback.ErrorHandlingCallback;
 import org.edx.mobile.http.provider.RetrofitProvider;
 import org.edx.mobile.model.Page;
-import org.edx.mobile.model.api.CourseUpgradeResponse;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
 import org.edx.mobile.model.api.SyncLastAccessedSubsectionResponse;
+import org.edx.mobile.model.api.VideoResponseModel;
 import org.edx.mobile.model.course.CourseStructureV1Model;
 import org.edx.mobile.view.common.TaskProgressCallback;
-import org.json.JSONObject;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -83,16 +81,9 @@ public interface CourseService {
                                        @Query("username") final String username);
 
     /**
-     * @return Upgrade status for the given course.
-     */
-    @Headers("Cache-Control: no-cache")
-    @GET("/api/experiments/v0/custom/REV-934")
-    Call<CourseUpgradeResponse> getCourseUpgradeStatus(@Query("course_id") String courseId);
-
-    /**
      * @return Enrolled courses of given user.
      */
-    @GET("/api/mobile/v1/users/{username}/course_enrollments")
+    @GET("/api/mobile/v0.5/users/{username}/course_enrollments")
     Call<List<EnrolledCoursesResponse>> getEnrolledCourses(@Path("username") final String username,
                                                            @Query("org") final String org);
 
@@ -100,10 +91,16 @@ public interface CourseService {
      * @return Enrolled courses of given user, only from the cache.
      */
     @Headers("Cache-Control: only-if-cached, max-stale")
-    @GET("/api/mobile/v1/users/{username}/course_enrollments")
+    @GET("/api/mobile/v0.5/users/{username}/course_enrollments")
     Call<List<EnrolledCoursesResponse>> getEnrolledCoursesFromCache(
             @Path("username") final String username,
             @Query("org") final String org);
+
+    /**
+     * @return List of videos in a particular course.
+     */
+    @GET("/api/mobile/v0.5/video_outlines/courses/{course_id}")
+    Call<List<VideoResponseModel>> getVideosByCourseId(@Path("course_id") final String courseId);
 
     @PATCH("/api/mobile/v0.5/users/{username}/course_status_info/{course_id}")
     Call<SyncLastAccessedSubsectionResponse> syncLastAccessedSubsection(
@@ -119,7 +116,7 @@ public interface CourseService {
     @POST("/api/enrollment/v1/enrollment")
     Call<ResponseBody> enrollInACourse(@Body final EnrollBody body);
 
-    @GET("/api/courses/{api_version}/blocks/?" +
+    @GET("/api/courses/v1/blocks/?" +
             "depth=all&" +
             "requested_fields=graded,format,student_view_multi_device,due&" +
             "student_view_data=video,discussion&" +
@@ -127,26 +124,8 @@ public interface CourseService {
             "nav_depth=3")
     Call<CourseStructureV1Model> getCourseStructure(
             @Header("Cache-Control") String cacheControlHeaderParam,
-            @Path("api_version") String blocksApiVersion,
             @Query("username") final String username,
             @Query("course_id") final String courseId);
-
-    @POST("/api/completion/v1/completion-batch")
-    Call<JSONObject> markBlocksCompletion(@Body BlocksCompletionBody completionBody);
-
-    final class BlocksCompletionBody {
-        @NonNull String username;
-        @NonNull String courseKey;
-        @NonNull HashMap<String, String> blocks = new HashMap<>();
-
-        public BlocksCompletionBody(@NonNull String username, @NonNull String courseKey, @NonNull String[] blockIds) {
-            this.username = username;
-            this.courseKey = courseKey;
-            for (int index = 0; index < blockIds.length; index++) {
-                blocks.put(blockIds[index], "1");
-            }
-        }
-    }
 
     final class SyncLastAccessedSubsectionBody {
         @NonNull

@@ -1,6 +1,5 @@
 package org.edx.mobile.view;
 
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -12,7 +11,6 @@ import org.edx.mobile.model.course.BlockType;
 import org.edx.mobile.model.course.CourseComponent;
 import org.edx.mobile.model.course.CourseStructureV1Model;
 import org.edx.mobile.model.course.HtmlBlockModel;
-import org.edx.mobile.view.custom.PreLoadingListener;
 import org.junit.Test;
 import org.robolectric.shadows.support.v4.SupportFragmentTestUtil;
 
@@ -44,7 +42,7 @@ public class CourseUnitWebViewFragmentTest extends UiTest {
         String courseId = courseData.getCourse().getId();
         CourseStructureV1Model model;
         try {
-            model = executeStrict(courseAPI.getCourseStructure(config.getApiUrlVersionConfig().getBlocksApiVersion(), courseId));
+            model = executeStrict(courseAPI.getCourseStructure(courseId));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -62,7 +60,7 @@ public class CourseUnitWebViewFragmentTest extends UiTest {
     @Test
     public void initializeTest() throws CourseContentNotValidException {
         CourseUnitWebViewFragment fragment = CourseUnitWebViewFragment.newInstance(getHtmlUnit());
-        SupportFragmentTestUtil.startVisibleFragment(fragment, PreLoadingListenerActivity.class, android.R.id.content);
+        SupportFragmentTestUtil.startVisibleFragment(fragment, RoboFragmentActivity.class, android.R.id.content);
         View view = fragment.getView();
         assertNotNull(view);
 
@@ -71,21 +69,5 @@ public class CourseUnitWebViewFragmentTest extends UiTest {
         assertThat(courseUnitWebView).isInstanceOf(WebView.class);
         WebView webView = (WebView) courseUnitWebView;
         assertTrue(webView.getSettings().getJavaScriptEnabled());
-    }
-
-    /**
-     * The {@link CourseUnitWebViewFragment} requires its parent activity to implement the
-     * {@link PreLoadingListener} interface, which is why this dummy activity has been created.
-     */
-    private static class PreLoadingListenerActivity extends RoboFragmentActivity implements PreLoadingListener {
-        @Override
-        public void setLoadingState(@NonNull State newState) {
-
-        }
-
-        @Override
-        public boolean isMainUnitLoaded() {
-            return false;
-        }
     }
 }

@@ -6,9 +6,11 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="@dimen/discussion_responses_standard_margin"
     android:layout_marginRight="@dimen/discussion_responses_standard_margin"
-    style="@style/edX.Widget.CardView"
+    app:cardCornerRadius="@dimen/edx_box_radius"
     app:cardElevation="1dp"
-    app:cardMaxElevation="1dp">
+    app:cardMaxElevation="1dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:id="@+id/row_discussion_comment_layout"

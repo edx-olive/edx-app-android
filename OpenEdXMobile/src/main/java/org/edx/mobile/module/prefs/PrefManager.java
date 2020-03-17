@@ -282,17 +282,16 @@ public class PrefManager {
         public static final String DOWNLOAD_ONLY_ON_WIFI = "download_only_on_wifi";
         public static final String DOWNLOAD_OFF_WIFI_SHOW_DIALOG_FLAG = "download_off_wifi_dialog_flag";
         public static final String TRANSCRIPT_LANGUAGE = "transcript_language";
-        public static final String PLAYBACK_SPEED = "playback_speed";
         public static final String ANALYTICS_KEY_BACKEND = "segment_backend";
         public static final String SPEED_TEST_KBPS = "speed_test_kbps";
         public static final String APP_VERSION_NAME = "app_version_name";
         public static final String APP_VERSION_CODE = "app_version_code";
         public static final String NOTIFICATION_PROFILE_JSON = "notification_profile_json";
+        public static final String USER_COOKIES_STRING = "user_cookies_string";
         private static final String NOTIFICATION = "notification";
         public static final String AppNotificationPushHash = "AppNotificationPushHash";
         public static final String AppUpgradeNeedSyncWithParse = "AppUpgradeNeedSyncWithParse";
         public static final String AppSettingNeedSyncWithParse = "AppSettingNeedSyncWithParse";
-        public static final String DOWNLOAD_TO_SDCARD = "download_to_sdcard";
 
         // Preference to save user app rating
         public static final String APP_RATING = "APP_RATING";

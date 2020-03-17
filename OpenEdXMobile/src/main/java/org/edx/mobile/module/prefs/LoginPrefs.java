@@ -13,7 +13,6 @@ import org.edx.mobile.model.api.ProfileModel;
 import org.edx.mobile.module.analytics.Analytics;
 import org.edx.mobile.services.EdxCookieManager;
 import org.edx.mobile.user.ProfileImage;
-import org.edx.mobile.util.VideoPlaybackSpeed;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -57,12 +56,16 @@ public class LoginPrefs {
         clearSocialLoginToken();
     }
 
+    public void storeUserCookies(@NonNull String cookies) {
+        pref.put(PrefManager.Key.USER_COOKIES_STRING, gson.toJson(cookies));
+    }
+
     public void clear() {
         clearSocialLoginToken();
         setSubtitleLanguage(null);
-        saveDefaultPlaybackSpeed(VideoPlaybackSpeed.NORMAL.getSpeedValue());
         pref.put(PrefManager.Key.PROFILE_JSON, null);
         pref.put(PrefManager.Key.AUTH_JSON, null);
+        pref.put(PrefManager.Key.USER_COOKIES_STRING, null);
         EdxCookieManager.getSharedInstance(MainApplication.instance()).clearWebWiewCookie();
     }
 
@@ -90,18 +93,6 @@ public class LoginPrefs {
 
     public void setSubtitleLanguage(@Nullable String language) {
         pref.put(PrefManager.Key.TRANSCRIPT_LANGUAGE, language);
-    }
-
-    /**
-     * @return User selected video playback speed, returns normal speed
-     * i-e- NORMAL_PLAYBACK_SPEED if user hasn't selected it yet.
-     */
-    public float getDefaultPlaybackSpeed() {
-        return pref.getFloat(PrefManager.Key.PLAYBACK_SPEED, VideoPlaybackSpeed.NORMAL.getSpeedValue());
-    }
-
-    public void saveDefaultPlaybackSpeed(float speed) {
-        pref.put(PrefManager.Key.PLAYBACK_SPEED, speed);
     }
 
     @Nullable
@@ -190,5 +181,14 @@ public class LoginPrefs {
             default:
                 throw new IllegalArgumentException(backend.name());
         }
+    }
+
+    @Nullable
+    public String getUserCookies() {
+        final String json = pref.getString(PrefManager.Key.USER_COOKIES_STRING);
+        if (null == json) {
+            return null;
+        }
+        return gson.fromJson(json, String.class);
     }
 }

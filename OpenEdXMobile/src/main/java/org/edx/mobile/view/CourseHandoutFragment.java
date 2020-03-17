@@ -1,6 +1,7 @@
 package org.edx.mobile.view;
 
 import android.annotation.SuppressLint;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -52,7 +53,7 @@ public class CourseHandoutFragment extends BaseFragment implements RefreshListen
     private OkHttpClientProvider okHttpClientProvider;
 
     @InjectView(R.id.webview)
-    private WebView webView;
+    private WebView webview;
 
     private FullScreenErrorNotification errorNotification;
 
@@ -67,16 +68,16 @@ public class CourseHandoutFragment extends BaseFragment implements RefreshListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_webview_with_paddings, container, false);
+        return inflater.inflate(R.layout.fragment_handout, container, false);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        errorNotification = new FullScreenErrorNotification(webView);
-        snackbarErrorNotification = new SnackbarErrorNotification(webView);
-        new URLInterceptorWebViewClient(getActivity(), webView).setAllLinksAsExternal(true);
+        errorNotification = new FullScreenErrorNotification(webview);
+        snackbarErrorNotification = new SnackbarErrorNotification(webview);
+        new URLInterceptorWebViewClient(getActivity(), webview).setAllLinksAsExternal(true);
         loadData();
     }
 
@@ -124,19 +125,27 @@ public class CourseHandoutFragment extends BaseFragment implements RefreshListen
 
         StringBuilder buff = WebViewUtil.getIntialWebviewBuffer(getActivity(), logger);
 
-        buff.append("<body>");
+        Configuration config = getResources().getConfiguration();
+
+        if(config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            buff.append("<body dir='rtl'>");
+        } else {
+            buff.append("<body>");
+        }
+
         buff.append("<div class=\"header\">");
         buff.append(handout.handouts_html);
         buff.append("</div>");
         buff.append("</body>");
 
-        webView.loadDataWithBaseURL(environment.getConfig().getApiHostURL(), buff.toString(),
+        webview.clearCache(true);
+        webview.loadDataWithBaseURL(environment.getConfig().getApiHostURL(), buff.toString(),
                 "text/html", Encoding.UTF_8.toString(), null);
 
     }
 
     private void hideErrorMessage() {
-        webView.setVisibility(View.VISIBLE);
+        webview.setVisibility(View.VISIBLE);
         errorNotification.hideError();
     }
 

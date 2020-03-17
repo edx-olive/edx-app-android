@@ -4,7 +4,8 @@
     android:id="@+id/create_new_item_layout"
     style="@style/footer_action_button"
     android:layout_alignParentBottom="true"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:showIn="@layout/fragment_discussion_posts">
 
     <TextView
         android:id="@+id/create_new_item_text_view"

@@ -1,29 +1,33 @@
 package org.edx.mobile.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.ValueCallback;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.edx.mobile.R;
-import org.edx.mobile.event.CourseUpgradedEvent;
+import org.edx.mobile.base.MainApplication;
 import org.edx.mobile.logger.Logger;
 import org.edx.mobile.model.course.BlockType;
 import org.edx.mobile.model.course.CourseComponent;
 import org.edx.mobile.module.analytics.Analytics;
+import org.edx.mobile.module.prefs.PrefManager;
 import org.edx.mobile.services.LastAccessManager;
+import org.edx.mobile.services.ViewPagerDownloadManager;
 import org.edx.mobile.view.adapters.CourseUnitPagerAdapter;
+import org.edx.mobile.view.common.PageViewStateCallback;
 import org.edx.mobile.view.custom.DisableableViewPager;
-import org.edx.mobile.view.custom.PreLoadingListener;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -33,8 +37,12 @@ import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 
-public class CourseUnitNavigationActivity extends CourseBaseActivity implements
-        BaseCourseUnitVideoFragment.HasComponent, PreLoadingListener {
+
+/**
+ *
+ */
+public class CourseUnitNavigationActivity extends CourseBaseActivity implements CourseUnitVideoFragment.HasComponent {
+
     protected Logger logger = new Logger(getClass().getSimpleName());
 
     private DisableableViewPager pager;
@@ -52,10 +60,32 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
     @InjectView(R.id.prev_unit_title)
     private TextView mPreviousUnitLbl;
 
-    private PreLoadingListener.State viewPagerState = PreLoadingListener.State.DEFAULT;
-
     @Inject
     LastAccessManager lastAccessManager;
+
+    private ValueCallback<Uri[]> uploadMessage;
+    public final static int FILECHOOSER_RESULTCODE = 1;
+
+    public void setUploadMessage(ValueCallback<Uri[]>  uploadMessage){
+        this.uploadMessage = uploadMessage;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILECHOOSER_RESULTCODE && uploadMessage != null) {
+
+            Uri[] result;
+            if (data == null || resultCode != Activity.RESULT_OK) {
+                result = null;
+            } else {
+                result = new Uri[]{Uri.parse(data.getDataString())};
+            }
+
+            uploadMessage.onReceiveValue(result);
+            uploadMessage = null;
+        }
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,30 +96,29 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
         insertPoint.addView(v, 0,
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        pager = findViewById(R.id.pager);
+        pager = (DisableableViewPager) findViewById(R.id.pager);
+        Configuration config = getResources().getConfiguration();
+        if(config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            pager.setRotationY(180);
+        }
+
         pagerAdapter = new CourseUnitPagerAdapter(getSupportFragmentManager(),
-                environment.getConfig(), unitList, courseData, courseUpgradeData, this);
+                environment.getConfig(), unitList, courseData, this);
         pager.setAdapter(pagerAdapter);
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-            private boolean firstPageLoad = true;
 
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            private Boolean firstTime = true;
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                /*
-                 * The method setUserVisibleHint is not called the first time the viewpager loads
-                 * so it's necessary to call it manually in order to run the logic inside it.
-                 *
-                 * 'onPageScrolled' method has been chosen instead of 'onPageSelected', because
-                 * `onPageSelected` is not getting called when pager opens page of position 0.
-                 */
-                if (firstPageLoad) {
-                    firstPageLoad = false;
-                    final CourseUnitFragment initialPage = (CourseUnitFragment) pagerAdapter.instantiateItem(pager, position);
-                    initialPage.setUserVisibleHint(true);
+                if (firstTime) {
+                    firstTime = false;
+                    CourseUnitFragment initialPage = (CourseUnitFragment) pagerAdapter.instantiateItem(pager, position);
+                    if (initialPage != null) {
+                        initialPage.onPageShow();
+                    }
                 }
-                // refresh the menu items to update the current state of google cast button
-                invalidateOptionsMenu();
             }
 
             @Override
@@ -98,15 +127,36 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
 
             @Override
             public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+                    int curIndex = pager.getCurrentItem();
+                    PageViewStateCallback curView = (PageViewStateCallback) pagerAdapter.instantiateItem(pager, curIndex);
+                    if (curView != null)
+                        curView.onPageDisappear();
+                }
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    int curIndex = pager.getCurrentItem();
+                    PageViewStateCallback curView = (PageViewStateCallback) pagerAdapter.instantiateItem(pager, curIndex);
+                    if (curView != null)
+                        curView.onPageShow();
                     tryToUpdateForEndOfSequential();
                 }
             }
         });
+
         findViewById(R.id.course_unit_nav_bar).setVisibility(View.VISIBLE);
 
-        mPreviousBtn.setOnClickListener(view -> navigatePreviousComponent());
-        mNextBtn.setOnClickListener(view -> navigateNextComponent());
+        mPreviousBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigatePreviousComponent();
+            }
+        });
+        mNextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateNextComponent();
+            }
+        });
     }
 
     @Override
@@ -119,6 +169,9 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
     public void navigatePreviousComponent() {
         int index = pager.getCurrentItem();
         if (index > 0) {
+            PageViewStateCallback curView = (PageViewStateCallback) pagerAdapter.instantiateItem(pager, index);
+            if (curView != null)
+                curView.onPageDisappear();
             pager.setCurrentItem(index - 1);
         }
     }
@@ -127,13 +180,16 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
     public void navigateNextComponent() {
         int index = pager.getCurrentItem();
         if (index < pagerAdapter.getCount() - 1) {
+            PageViewStateCallback curView = (PageViewStateCallback) pagerAdapter.instantiateItem(pager, index);
+            if (curView != null)
+                curView.onPageDisappear();
             pager.setCurrentItem(index + 1);
         }
     }
 
     @Override
     protected void onLoadData() {
-        selectedUnit = courseManager.getComponentById(blocksApiVersion, courseData.getCourse().getId(), courseComponentId);
+        selectedUnit = courseManager.getComponentById(courseData.getCourse().getId(), courseComponentId);
         updateDataModel();
     }
 
@@ -222,6 +278,8 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
         unitList.addAll(leaves);
         pagerAdapter.notifyDataSetChanged();
 
+        ViewPagerDownloadManager.instance.setMainComponent(selectedUnit, unitList);
+
         int index = unitList.indexOf(selectedUnit);
         if (index >= 0) {
             pager.setCurrentItem(index);
@@ -260,25 +318,13 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
         return selectedUnit;
     }
 
-    @Override
-    public void setLoadingState(@NonNull State newState) {
-        viewPagerState = newState;
+    protected void hideLastAccessedView(View v) {
+    }
+
+    protected void showLastAccessedView(View v, String title, View.OnClickListener listener) {
     }
 
     @Override
-    public boolean isMainUnitLoaded() {
-        return viewPagerState == State.MAIN_UNIT_LOADED;
-    }
-
-    @Override
-    public boolean showGoogleCastButton() {
-        if (pager != null && pagerAdapter != null) {
-            return ((CourseUnitFragment) pagerAdapter.instantiateItem(pager, pager.getCurrentItem())).hasCastSupportedVideoContent();
-        }
-        return super.showGoogleCastButton();
-    }
-
-    public void onEvent(CourseUpgradedEvent event) {
-        finish();
+    protected void onOffline() {
     }
 }

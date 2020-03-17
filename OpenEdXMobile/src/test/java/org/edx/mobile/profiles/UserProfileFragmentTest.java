@@ -16,9 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -35,7 +34,7 @@ public class UserProfileFragmentTest extends PresenterFragmentTest<
     public void before() {
         startFragment(TestableUserProfileFragment.newInstance(ProfileValues.USERNAME));
         binding = DataBindingUtil.getBinding(fragment.getView());
-        assertNotNull(binding);
+        assertThat(binding).isNotNull();
     }
 
     @Test
@@ -47,13 +46,13 @@ public class UserProfileFragmentTest extends PresenterFragmentTest<
     @Test
     public void setEditProfileMenuButtonVisible_withTrue_showsEditProfileOption() {
         view.setEditProfileMenuButtonVisible(true);
-        assertNotNull(fragment.getActivity().findViewById(R.id.edit_profile));
+        assertThat(fragment.getActivity().findViewById(R.id.edit_profile)).isNotNull();
     }
 
     @Test
     public void setEditProfileMenuButtonVisible_withFalse_hidesEditProfileOption() {
         view.setEditProfileMenuButtonVisible(false);
-        assertNull(fragment.getActivity().findViewById(R.id.edit_profile));
+        assertThat(fragment.getActivity().findViewById(R.id.edit_profile)).isNull();
     }
 
     @Test

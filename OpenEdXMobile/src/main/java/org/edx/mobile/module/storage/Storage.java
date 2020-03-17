@@ -2,15 +2,17 @@ package org.edx.mobile.module.storage;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.edx.mobile.core.IEdxEnvironment;
 import org.edx.mobile.course.CourseAPI;
 import org.edx.mobile.logger.Logger;
 import org.edx.mobile.model.VideoModel;
@@ -29,7 +31,6 @@ import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.module.prefs.UserPrefs;
 import org.edx.mobile.module.prefs.VideoPrefs;
 import org.edx.mobile.util.Config;
-import org.edx.mobile.util.FileUtil;
 import org.edx.mobile.util.NetworkUtil;
 import org.edx.mobile.util.Sha1Util;
 import org.edx.mobile.view.BulkDownloadFragment;
@@ -60,9 +61,6 @@ public class Storage implements IStorage {
     @Inject
     private VideoPrefs videoPrefs;
 
-    @Inject
-    protected IEdxEnvironment environment;
-
     private final Logger logger = new Logger(getClass().getName());
 
 
@@ -89,7 +87,7 @@ public class Storage implements IStorage {
             }
 
             // Fail the download if download directory isn't available
-            final File downloadDirectory = FileUtil.getDownloadDirectory(context, environment);
+            final File downloadDirectory = pref.getDownloadDirectory();
             if (downloadDirectory == null) return -1;
 
             // there is no any download ever marked for this URL
@@ -421,30 +419,40 @@ public class Storage implements IStorage {
             if (nm != null && nm.status == DownloadManager.STATUS_SUCCESSFUL) {
                 {
                     DownloadEntry e = (DownloadEntry) db.getDownloadEntryByDmId(dmId, null);
-                    e.downloaded = DownloadEntry.DownloadedState.DOWNLOADED;
-                    e.filepath = nm.filepath;
-                    if(e.size<=0){
-                        e.size = nm.size;
-                    }
-                    e.downloadedOn = System.currentTimeMillis();
-                    // update file duration
-                    if(e.duration==0){
-                        try {
-                            MediaMetadataRetriever r = new MediaMetadataRetriever();
-                            FileInputStream in = new FileInputStream(new File(e.filepath));
-                            r.setDataSource(in.getFD());
-                            int duration = Integer
-                                    .parseInt(r
-                                            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                            e.duration = duration/1000;
-                            logger.debug("Duration updated to : " + duration);
-                            in.close();
-                        } catch (Exception ex) {
-                            logger.error(ex);
+                    if (e!=null) {
+                        e.downloaded = DownloadEntry.DownloadedState.DOWNLOADED;
+                        e.filepath = nm.filepath;
+                        if(e.size<=0){
+                            e.size = nm.size;
                         }
+                        e.downloadedOn = System.currentTimeMillis();
+                        // update file duration
+                        if(e.duration==0){
+                            try {
+                                MediaMetadataRetriever r = new MediaMetadataRetriever();
+                                FileInputStream in = new FileInputStream(new File(e.filepath));
+                                r.setDataSource(in.getFD());
+                                int duration = Integer
+                                        .parseInt(r
+                                                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                                e.duration = duration/1000;
+                                logger.debug("Duration updated to : " + duration);
+                                in.close();
+                            } catch (Exception ex) {
+                                logger.error(ex);
+                            }
+                        }
+                        db.updateDownloadCompleteInfoByDmId(dmId, e, null);
+                        callback.sendResult(e);
+                    }  else {
+                        Intent pdfIntent = new Intent("com.adobe.reader");
+                        pdfIntent.setAction(Intent.ACTION_VIEW);
+                        Uri uri = FileProvider.getUriForFile(this.context, this.context.getApplicationContext().getPackageName() + ".provider",  new File(nm.filepath));
+                        pdfIntent.setDataAndType(uri,"application/pdf");
+                        pdfIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        pdfIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        this.context.startActivity(pdfIntent);
                     }
-                    db.updateDownloadCompleteInfoByDmId(dmId, e, null);
-                    callback.sendResult(e);
                     EventBus.getDefault().post(new DownloadCompletedEvent());
                 }
 

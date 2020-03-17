@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,17 +7,10 @@
     android:orientation="vertical"
     android:splitMotionEvents="false">
 
-    <FrameLayout
-        android:id="@+id/fl_bulk_download_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/fragment_container"
-        android:layout_below="@+id/fl_bulk_download_container">
+        android:layout_height="match_parent">
 
         <ListView
             android:id="@+id/outline_list"
@@ -29,16 +22,7 @@
             tools:visibility="visible" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <include layout="@layout/loading_indicator" />
-
     <include layout="@layout/content_error" />
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        tools:background="@color/edx_success_accent"
-        tools:layout_height="150dp" />
-
-</RelativeLayout>
+    <include layout="@layout/loading_indicator" />
+</FrameLayout>

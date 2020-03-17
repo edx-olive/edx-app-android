@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 
 import org.edx.mobile.R;
 import org.edx.mobile.course.CourseAPI;
+import org.edx.mobile.http.provider.OkHttpClientProvider;
 import org.edx.mobile.model.Filter;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
 import org.edx.mobile.model.course.BlockType;
@@ -51,8 +52,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
-@Ignore("Include this test once we have migrated to the androidX")
-// TODO: To be fixed in LEARNER-7466
 public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
     /**
      * Method for defining the subclass of {@link CourseUnitNavigationActivity}
@@ -81,7 +80,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
         CourseStructureV1Model model;
         CourseComponent courseComponent;
         try {
-            model = executeStrict(courseAPI.getCourseStructure(config.getApiUrlVersionConfig().getBlocksApiVersion(), courseId));
+            model = executeStrict(courseAPI.getCourseStructure(courseId));
             courseComponent = (CourseComponent) CourseAPI.normalizeCourseStructure(model, courseId);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -154,7 +153,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
         CourseStructureV1Model model;
         CourseComponent courseComponent;
         try {
-            model = executeStrict(courseAPI.getCourseStructure(config.getApiUrlVersionConfig().getBlocksApiVersion(), courseId));
+            model = executeStrict(courseAPI.getCourseStructure(courseId));
             courseComponent = (CourseComponent) CourseAPI.normalizeCourseStructure(model, courseId);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -253,7 +252,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
 
         Class<? extends CourseUnitFragment> fragmentClass;
         if (currentUnit instanceof VideoBlockModel) {
-            fragmentClass = BaseCourseUnitVideoFragment.class;
+            fragmentClass = CourseUnitVideoFragment.class;
         } else if (!currentUnit.isMultiDevice() ){
             fragmentClass = CourseUnitMobileNotSupportedFragment.class;
         } else if (currentUnit.getType() != BlockType.VIDEO &&
@@ -379,8 +378,6 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
      * ViewPager, by supplying its {@link CourseUnitPagerAdapter} with all possible
      * {@link CourseComponent} models.
      */
-    // FIXME: Enable this test once LEARNER-6713 is merged
-    @Ignore
     @Test
     public void testUnitFragmentCreation() {
         FragmentManager fragmentManager = Mockito.mock(FragmentManager.class);
@@ -397,7 +394,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
                 .thenReturn(Mockito.mock(VideoInfo.class));
         when(encodeVideosModel.getData()).thenReturn(videoData);
         unitList.add(encodeVideosModel);
-        classesList.add(BaseCourseUnitVideoFragment.class);
+        classesList.add(CourseUnitVideoFragment.class);
 
         VideoBlockModel youtubeVideosModel = Mockito.mock(VideoBlockModel.class);
         VideoData videoData2 = Mockito.mock(VideoData.class);
@@ -406,8 +403,12 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
                 .thenReturn(Mockito.mock(VideoInfo.class));
         when(youtubeVideosModel.getData()).thenReturn(videoData2);
         unitList.add(youtubeVideosModel);
-        classesList.add(CourseUnitYoutubePlayerFragment.class);
-        classesList.add(CourseUnitOnlyOnYoutubeFragment.class);
+        if (config.getEmbeddedYoutubeConfig().isYoutubeEnabled()) {
+            classesList.add(CourseUnitYoutubeVideoFragment.class);
+        } else {
+            classesList.add(CourseUnitOnlyOnYoutubeFragment.class);
+        }
+
         DiscussionBlockModel discussionModel = Mockito.mock(DiscussionBlockModel.class);
         unitList.add(discussionModel);
         if (config.isDiscussionsEnabled()) {
@@ -446,7 +447,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
         classesList.add(CourseUnitMobileNotSupportedFragment.class);
 
         CourseUnitPagerAdapter adapter = new CourseUnitPagerAdapter(fragmentManager, config,
-                unitList, courseData, null, hasComponent);
+                unitList, courseData, hasComponent);
 
         for (int size = unitList.size(), i = 0; i < size; i++) {
             assertThat(adapter.getItem(i)).isInstanceOf(classesList.get(i));
@@ -474,7 +475,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
                 when(videoData.encodedVideos.getPreferredVideoInfo())
                         .thenReturn(Mockito.mock(VideoInfo.class));
                 when(encodedVideosModel.getData()).thenReturn(videoData);
-                argsList.add(new Object[] {encodedVideosModel, BaseCourseUnitVideoFragment.class, true});
+                argsList.add(new Object[] {encodedVideosModel, CourseUnitVideoFragment.class, true});
 
                 VideoBlockModel youtubeVideosModel = Mockito.mock(VideoBlockModel.class);
                 VideoData videoData2 = Mockito.mock(VideoData.class);
@@ -545,7 +546,7 @@ public class CourseUnitNavigationActivityTest extends CourseBaseActivityTest {
             CourseUnitFragment.HasComponent hasComponent = Mockito.mock(CourseUnitFragment.HasComponent.class);
 
             CourseUnitPagerAdapter adapter = new CourseUnitPagerAdapter(fragmentManager, config,
-                    Collections.singletonList(paramCourseComponent), courseData, null, hasComponent);
+                    Collections.singletonList(paramCourseComponent), courseData, hasComponent);
 
             assertThat(adapter.getItem(0)).isInstanceOf(expectedFragmentClass);
         }

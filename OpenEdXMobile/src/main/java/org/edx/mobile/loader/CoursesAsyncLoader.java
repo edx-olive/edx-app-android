@@ -58,6 +58,7 @@ public class CoursesAsyncLoader extends AsyncTaskLoader<AsyncTaskResult<List<Enr
         }
 
         result.setResult(enrolledCoursesResponse);
+
         return result;
     }
 

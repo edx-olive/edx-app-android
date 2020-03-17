@@ -48,7 +48,7 @@ public class DatabaseModelFactory {
         de.chapter = c.getString(c.getColumnIndex(DbStructure.Column.CHAPTER));
         de.section = c.getString(c.getColumnIndex(DbStructure.Column.SECTION));
         de.downloadedOn = c.getLong(c.getColumnIndex(DbStructure.Column.DOWNLOADED_ON));
-        de.lastPlayedOffset = c.getLong(c.getColumnIndex(DbStructure.Column.LAST_PLAYED_OFFSET));
+        de.lastPlayedOffset = c.getInt(c.getColumnIndex(DbStructure.Column.LAST_PLAYED_OFFSET));
         de.isCourseActive = c.getInt(c.getColumnIndex(DbStructure.Column.IS_COURSE_ACTIVE));
         de.isVideoForWebOnly = c.getInt(c.getColumnIndex(DbStructure.Column.VIDEO_FOR_WEB_ONLY)) == 1;
         de.lmsUrl = c.getString(c.getColumnIndex(DbStructure.Column.UNIT_URL));
@@ -99,7 +99,7 @@ public class DatabaseModelFactory {
         IBlock root = block.getRoot();
         e.eid = root.getCourseId();
         e.duration = vrm.duration;
-        final VideoInfo preferredVideoInfo = vrm.encodedVideos.getPreferredVideoInfo();
+        final VideoInfo preferredVideoInfo = vrm.encodedVideos.getPreferredVideoInfoForDownloading();
         e.size = preferredVideoInfo.fileSize;
         e.title = block.getDisplayName();
         e.url = preferredVideoInfo.url;

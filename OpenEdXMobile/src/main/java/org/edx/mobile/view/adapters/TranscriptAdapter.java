@@ -32,7 +32,7 @@ public class TranscriptAdapter extends BaseListAdapter<Caption> {
         final ViewHolder viewHolder = (ViewHolder) tag;
         String captionText = model.content;
         if (captionText.endsWith("<br />")) {
-            captionText = captionText.substring(0, captionText.length() - 6);
+            captionText = captionText.substring(0, captionText.length() - 6).replace("<br />", "  ");
         }
         viewHolder.transcriptTv.setText(TextUtils.formatHtml(captionText));
         final int position = getPosition(model);

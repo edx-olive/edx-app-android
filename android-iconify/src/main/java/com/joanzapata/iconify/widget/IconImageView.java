@@ -59,7 +59,11 @@ public class IconImageView extends ImageView {
     }
 
     public void setIcon(@NonNull Icon icon) {
-        setImageDrawable(new IconDrawable(getContext(), icon));
+        IconDrawable iconDrawable = new IconDrawable(getContext(), icon);
+        if (icon.toString().equalsIgnoreCase("fa_question")){
+            iconDrawable.setAutoMirrored(false);
+        }
+        setImageDrawable(iconDrawable);
     }
 
     @Nullable

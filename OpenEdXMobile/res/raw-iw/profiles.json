@@ -2,13 +2,13 @@
     "fields":[
     {
               "name" : "account_privacy",
-              "label" : "לומדים אחרים יכולים לראות את הפרטים הבאים עלי:",
+              "label" : "לומדים אחרים יוכלו לראות את הפרטים הבאים אודותיי:",
               "type" : "switch",
               "data_type" : "boolean",
               "options" : {
                 "values" : [
                             { "name" : "פרופיל מלא", "value" : "all_users" },
-                            { "name" : "פרופיל מוגבל",  "value" : "private" }
+                            { "name" : "פרופיל חלקי",  "value" : "private" }
                  ]
               },
               "instructions" : "פרופיל מוגבל משתף רק את שם המשתמש ותמונת הפרופיל שלכם.",
@@ -20,12 +20,12 @@
               "type" : "select",
               "options" : {
                 "range_min" : 1896,
-                "range_max" : 2019,
+                "range_max" : 2015,
                 "allows_none" : true,
                 "none_label" : "אין שנת לידה"
               },
-              "instructions" : "אתם חייבים לציין את שנת הלידה שלכם לפני שתוכלו לחלוק את הפרופיל המלא שלכם.",
-              "sub_instructions" : "פרט זה לא יוצג באופן פומבי"
+              "instructions" : "יש לציין את שנת הלידה לפני השיתוף בפרופיל המלא שלך.",
+              "sub_instructions" : "נתון זה לא יוצג באופן פומבי"
     },
     {
               "name" : "country",
@@ -51,7 +51,7 @@
     },
     {
               "name" : "bio",
-              "label" : "אודותי",
+              "label" : "קצת עליי:",
               "type" : "textarea",
               "placeholder" : "אני מעוניין\\ת ללמוד..."
     }

@@ -84,25 +84,19 @@ public class FirebaseAnalytics implements Analytics {
 
     @Override
     public void trackVideoPlaying(String videoId, Double currentTime,
-                                  String courseId, String unitUrl, String playMedium) {
+                                  String courseId, String unitUrl) {
         final FirebaseEvent event = new FirebaseEvent(Events.PLAYED_VIDEO, videoId,
                 Values.VIDEO_PLAYED, currentTime);
         event.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        if (!TextUtils.isEmpty(playMedium)) {
-            event.putString(Keys.PLAY_MEDIUM, playMedium);
-        }
         logFirebaseEvent(event.getName(), event.getBundle());
     }
 
     @Override
     public void trackVideoPause(String videoId,
-                                Double currentTime, String courseId, String unitUrl, String playMedium) {
+                                Double currentTime, String courseId, String unitUrl) {
         final FirebaseEvent event = new FirebaseEvent(Events.PAUSED_VIDEO,
                 videoId, Values.VIDEO_PAUSED, currentTime);
         event.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        if (!TextUtils.isEmpty(playMedium)) {
-            event.putString(Keys.PLAY_MEDIUM, playMedium);
-        }
         logFirebaseEvent(event.getName(), event.getBundle());
     }
 
@@ -146,27 +140,6 @@ public class FirebaseAnalytics implements Analytics {
         logFirebaseEvent(event.getName(), event.getBundle());
     }
 
-    /**
-     * This function is used to track the video playback speed changes
-     *
-     * @param videoId
-     * @param currentTime
-     * @param courseId
-     * @param unitUrl
-     * @param oldSpeed
-     * @param newSpeed
-     */
-    @Override
-    public void trackVideoSpeed(String videoId, Double currentTime, String courseId,
-                                String unitUrl, float oldSpeed, float newSpeed) {
-        final FirebaseEvent event = new FirebaseEvent(Events.SPEED_CHANGE_VIDEO,
-                videoId, Values.VIDEO_PLAYBACK_SPEED_CHANGED, currentTime);
-        event.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        event.putFloat(Keys.NEW_SPEED, newSpeed);
-        event.putFloat(Keys.OLD_SPEED, oldSpeed);
-        logFirebaseEvent(event.getName(), event.getBundle());
-    }
-
     @Override
     public void trackHideTranscript(String videoId, Double currentTime, String courseId,
                                     String unitUrl) {
@@ -181,18 +154,6 @@ public class FirebaseAnalytics implements Analytics {
                                       String unitUrl) {
         final FirebaseEvent event = new FirebaseEvent(Events.VIDEO_DOWNLOADED, videoId, Values.VIDEO_DOWNLOADED);
         event.setCourseContext(courseId, unitUrl, Values.DOWNLOAD_MODULE);
-        logFirebaseEvent(event.getName(), event.getBundle());
-    }
-
-    @Override
-    public void trackCourseUpgradeSuccess(String blockId, String courseId, String minifiedBlockId) {
-        final FirebaseEvent event = new FirebaseEvent(Events.COURSE_UPGRADE_SUCCESS,
-                Values.USER_COURSE_UPGRADE_SUCCESS);
-        event.putCourseId(courseId);
-        event.putString(Keys.BLOCK_ID, minifiedBlockId);
-
-        //Add category for Google Analytics
-        event.addCategoryToBiEvents(Values.CONVERSION, courseId);
         logFirebaseEvent(event.getName(), event.getBundle());
     }
 
@@ -221,14 +182,11 @@ public class FirebaseAnalytics implements Analytics {
 
     @Override
     public void trackVideoOrientation(String videoId, Double currentTime,
-                                      boolean isLandscape, String courseId, String unitUrl, String playMedium) {
+                                      boolean isLandscape, String courseId, String unitUrl) {
         final FirebaseEvent event = new FirebaseEvent(Events.SCREEN_TOGGLED, videoId,
                 Values.FULLSREEN_TOGGLED, currentTime);
         event.putBoolean(Keys.FULLSCREEN, isLandscape);
         event.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        if (!TextUtils.isEmpty(playMedium)) {
-            event.putString(Keys.PLAY_MEDIUM, playMedium);
-        }
         logFirebaseEvent(event.getName(), event.getBundle());
     }
 
@@ -591,34 +549,6 @@ public class FirebaseAnalytics implements Analytics {
         final FirebaseEvent event = new FirebaseEvent(Events.SUBJECT_DISCOVERY, Values.SUBJECT_CLICKED);
         event.putString(Keys.SUBJECT_ID, subjectId);
         event.putString(Keys.CATEGORY, Values.DISCOVERY);
-        logFirebaseEvent(event.getName(), event.getBundle());
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOn() {
-        final FirebaseEvent event = new FirebaseEvent(Events.DOWNLOAD_TO_SD_CARD_ON, Values.DOWNLOAD_TO_SD_CARD_SWITCH_ON);
-        logFirebaseEvent(event.getName(), event.getBundle());
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOff() {
-        final FirebaseEvent event = new FirebaseEvent(Events.DOWNLOAD_TO_SD_CARD_OFF, Values.DOWNLOAD_TO_SD_CARD_SWITCH_OFF);
-        logFirebaseEvent(event.getName(), event.getBundle());
-    }
-
-    @Override
-    public void trackExperimentParams(String experimentName, Map<String, String> values) {
-        final FirebaseEvent event = new FirebaseEvent(experimentName);
-        event.putMap(values);
-        logFirebaseEvent(event.getName(), event.getBundle());
-    }
-
-    @Override
-    public void trackCastDeviceConnectionChanged(@NonNull String eventName, @NonNull String connectionState, @NonNull String playMedium) {
-        final FirebaseEvent event = new FirebaseEvent(eventName, connectionState);
-        if (!TextUtils.isEmpty(playMedium)) {
-            event.putString(Keys.PLAY_MEDIUM, playMedium);
-        }
         logFirebaseEvent(event.getName(), event.getBundle());
     }
 }

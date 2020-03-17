@@ -18,11 +18,9 @@ public class WebViewLink {
 
     public enum Authority {
         COURSE_INFO("course_info"),
-        PROGRAM_INFO("program_info"),
         ENROLL("enroll"),
         ENROLLED_PROGRAM_INFO("enrolled_program_info"),
-        ENROLLED_COURSE_INFO("enrolled_course_info"),
-        COURSE("course");
+        ENROLLED_COURSE_INFO("enrolled_course_info");
 
         private String key;
 
@@ -39,7 +37,6 @@ public class WebViewLink {
         public static final String PATH_ID = "path_id";
         public static final String COURSE_ID = "course_id";
         public static final String EMAIL_OPT = "email_opt_in";
-        public static final String PROGRAMS = "programs";
     }
 
     @NonNull

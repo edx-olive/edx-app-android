@@ -42,18 +42,11 @@ public class DownloadEntry implements SectionItemInterface, VideoModel {
     public String chapter;
     public String section;
     public long downloadedOn;
-    public long lastPlayedOffset;
+    public int lastPlayedOffset;
     public int isCourseActive = 1; // default is TRUE
     public boolean isVideoForWebOnly; //default is FALSE
     public String lmsUrl;
     public TranscriptModel transcript;
-
-    /**
-     * TODO: Add a new field in the {@link org.edx.mobile.module.db.DbStructure.Table#DOWNLOADS}
-     * database table to store the videoThumbnail along the video info. videoThumbnail is not
-     * available to cast in deep-link case after this TODO this issue will resolved.
-     */
-    public String videoThumbnail;
 
     @Inject
     IEdxEnvironment environment;
@@ -192,7 +185,7 @@ public class DownloadEntry implements SectionItemInterface, VideoModel {
     }
 
     @Override
-    public long getLastPlayedOffset() {
+    public int getLastPlayedOffset() {
         return lastPlayedOffset;
     }
 
@@ -227,7 +220,7 @@ public class DownloadEntry implements SectionItemInterface, VideoModel {
     @Override
     public void setDownloadInfo(NativeDownloadModel download) {
         dmId = download.dmid;
-        downloaded = DownloadedState.values()[(int)download.downloaded];
+        downloaded = DownloadedState.DOWNLOADING;
         filepath = download.filepath;
         size = download.size;
         // duration can't be updated here

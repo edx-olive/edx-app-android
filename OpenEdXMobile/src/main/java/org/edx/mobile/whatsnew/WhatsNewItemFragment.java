@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +45,6 @@ public class WhatsNewItemFragment extends BaseFragment {
 
         binding.title.setText(escapePlatformName(model.getTitle()));
         binding.message.setText(escapePlatformName(model.getMessage()));
-        binding.message.setMovementMethod(new ScrollingMovementMethod());
 
         @DrawableRes
         final int imageRes = UiUtil.getDrawable(getContext(), model.getImage());

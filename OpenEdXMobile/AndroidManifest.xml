@@ -17,7 +17,6 @@
 
     <!-- Required by app for storing downloaded videos to the external storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <!-- Required by app for capturing image -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -92,11 +91,6 @@
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
 
         <activity
-            android:name="org.edx.mobile.view.PaymentsInfoActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
-
-        <activity
             android:name="org.edx.mobile.view.CourseOutlineActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
@@ -122,7 +116,7 @@
         <activity
             android:name=".view.CourseDiscussionResponsesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/discussion_title"
+            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
 
         <activity
@@ -156,6 +150,12 @@
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
 
         <activity
+            android:name=".view.WebViewFindCoursesActivity"
+            android:label="@string/label_discover"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
+
+        <activity
             android:name=".view.ViewSubjectsActivity"
             android:label="@string/browse_by_subject"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
@@ -163,11 +163,7 @@
         <activity
             android:name="org.edx.mobile.view.CourseInfoActivity"
             android:label="@string/label_discover"
-            android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
-
-        <activity
-            android:name="org.edx.mobile.view.ProgramInfoActivity"
-            android:label="@string/label_discover"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
 
         <activity
@@ -182,8 +178,9 @@
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
 
         <activity
-            android:name=".view.DiscoveryActivity"
-            android:label="@string/label_discover"
+            android:name=".view.NativeFindCoursesActivity"
+            android:label="@string/label_find_courses"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
 
         <activity
@@ -234,7 +231,7 @@
 
         <activity
             android:name=".view.CourseTabsDashboardActivity"
-            android:label=""
+            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar"/>
 
         <activity
@@ -249,40 +246,15 @@
         </activity>
 
         <activity
-            android:name=".view.ProgramWebViewActivity"
+            android:name=".view.dialog.AuthenticatedWebViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
-
-        <activity
-            android:name=".view.CourseUpgradeWebViewActivity"
-            android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar" />
-
-        <!--Google cast expanded controls activity-->
-        <activity
-            android:name="org.edx.mobile.googlecast.ExpandedControlsActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.CastVideosTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-            </intent-filter>
-        </activity>
 
         <receiver android:name="org.edx.mobile.module.download.DownloadCompleteReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Media status update receiver required for the SD Card storage feature -->
-        <receiver android:name=".receivers.MediaStatusReceiver" android:enabled="${sdCardEnabled}">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
-                <action android:name="android.intent.action.MEDIA_REMOVED" />
-                <action android:name="android.intent.action.MEDIA_MOUNTED"/>
-                <data android:scheme="file" />
             </intent-filter>
         </receiver>
 
@@ -319,6 +291,8 @@
         <!-- Setup Firebase -->
         <meta-data android:name="firebase_analytics_collection_enabled"
             android:value="${firebaseEnabled}" />
+        <meta-data android:name="firebase_messaging_auto_init_enabled"
+            android:value="${firebaseEnabled}" />
 
         <!-- Branch -->
         <meta-data android:name="io.branch.sdk.BranchKey" android:value="${branchKey}" />
@@ -342,11 +316,9 @@
         <service android:name="org.edx.mobile.services.DownloadSpeedService" />
 
         <!-- Notifications through Firebase Cloud Messaging (FCM) -->
-        <meta-data android:name="firebase_messaging_auto_init_enabled"
-            android:value="${fcmEnabled}" />
         <service
             android:name="org.edx.mobile.notifications.services.NotificationService"
-            android:enabled="${fcmEnabled}">
+            android:enabled="${firebaseEnabled}">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
@@ -360,14 +332,13 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/edx_brand_primary_accent" />
-        <meta-data
-            android:name="firebase_performance_logcat_enabled"
-            android:value="true" />
 
-        <!--Google cast options provider -->
-        <meta-data
-            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="org.edx.mobile.googlecast.CastOptionsProvider" />
+        <activity
+            android:name="org.edx.mobile.view.SamlWebViewActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar"
+            android:windowSoftInputMode="adjustNothing" />
 
     </application>
 

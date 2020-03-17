@@ -17,17 +17,12 @@ import com.google.inject.Singleton;
 import org.edx.mobile.BuildConfig;
 import org.edx.mobile.R;
 import org.edx.mobile.authentication.LoginAPI;
-import org.edx.mobile.core.IEdxEnvironment;
 import org.edx.mobile.course.CourseDetail;
-import org.edx.mobile.deeplink.DeepLink;
-import org.edx.mobile.deeplink.ScreenDef;
 import org.edx.mobile.discussion.DiscussionComment;
 import org.edx.mobile.discussion.DiscussionThread;
 import org.edx.mobile.discussion.DiscussionTopic;
 import org.edx.mobile.event.LogoutEvent;
-import org.edx.mobile.model.api.CourseUpgradeResponse;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
-import org.edx.mobile.model.course.CourseComponent;
 import org.edx.mobile.module.analytics.AnalyticsRegistry;
 import org.edx.mobile.module.notification.NotificationDelegate;
 import org.edx.mobile.module.prefs.LoginPrefs;
@@ -35,9 +30,8 @@ import org.edx.mobile.module.storage.IStorage;
 import org.edx.mobile.profiles.UserProfileActivity;
 import org.edx.mobile.util.Config;
 import org.edx.mobile.util.EmailUtil;
-import org.edx.mobile.util.ResourceUtil;
 import org.edx.mobile.util.SecurityUtil;
-import org.edx.mobile.util.links.WebViewLink;
+import org.edx.mobile.view.dialog.AuthenticatedWebViewActivity;
 import org.edx.mobile.whatsnew.WhatsNewActivity;
 
 import de.greenrobot.event.EventBus;
@@ -49,22 +43,17 @@ public class Router {
     public static final String EXTRA_COURSE_ID = "course_id";
     public static final String EXTRA_COURSE_DETAIL = "course_detail";
     public static final String EXTRA_COURSE_DATA = "course_data";
-    public static final String EXTRA_COURSE_UPGRADE_DATA = "course_upgrade_data";
     public static final String EXTRA_COURSE_UNIT = "course_unit";
     public static final String EXTRA_COURSE_COMPONENT_ID = "course_component_id";
     public static final String EXTRA_LAST_ACCESSED_ID = "last_accessed_id";
     public static final String EXTRA_SEARCH_QUERY = "search_query";
     public static final String EXTRA_DISCUSSION_TOPIC = "discussion_topic";
     public static final String EXTRA_DISCUSSION_THREAD = "discussion_thread";
-    public static final String EXTRA_DISCUSSION_THREAD_ID = "discussion_thread_id";
     public static final String EXTRA_DISCUSSION_COMMENT = "discussion_comment";
     public static final String EXTRA_DISCUSSION_TOPIC_ID = "discussion_topic_id";
     public static final String EXTRA_IS_VIDEOS_MODE = "videos_mode";
     public static final String EXTRA_IS_ON_COURSE_OUTLINE = "is_on_course_outline";
     public static final String EXTRA_SUBJECT_FILTER = "subject_filter";
-    public static final String EXTRA_PATH_ID = "path_id";
-    public static final String EXTRA_SCREEN_NAME = "screen_name";
-    public static final String EXTRA_DEEP_LINK = "deep_link";
 
     @Inject
     Config config;
@@ -75,13 +64,6 @@ public class Router {
     private LoginPrefs loginPrefs;
     @Inject
     private IStorage storage;
-
-    public Router() {
-    }
-
-    public Router(Config config) {
-        this.config = config;
-    }
 
     public void showDownloads(Activity sourceActivity) {
         Intent downloadIntent = new Intent(sourceActivity, DownloadListActivity.class);
@@ -97,19 +79,13 @@ public class Router {
 
     public void showCourseInfo(Activity sourceActivity, String pathId) {
         Intent courseInfoIntent = new Intent(sourceActivity, CourseInfoActivity.class);
-        courseInfoIntent.putExtra(EXTRA_PATH_ID, pathId);
+        courseInfoIntent.putExtra(CourseInfoActivity.EXTRA_PATH_ID, pathId);
         sourceActivity.startActivity(courseInfoIntent);
-    }
-
-    public void showProgramInfo(Activity sourceActivity, String pathId) {
-        Intent programInfoIntent = new Intent(sourceActivity, ProgramInfoActivity.class);
-        programInfoIntent.putExtra(EXTRA_PATH_ID, pathId);
-        sourceActivity.startActivity(programInfoIntent);
     }
 
     public void showSettings(Activity sourceActivity) {
         Intent settingsIntent = new Intent(sourceActivity, SettingsActivity.class);
-        settingsIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         sourceActivity.startActivity(settingsIntent);
     }
 
@@ -129,13 +105,8 @@ public class Router {
     }
 
     @NonNull
-    public Intent getLogInIntent(@Nullable DeepLink deepLink) {
-        return LoginActivity.newIntent(deepLink);
-    }
-
-    @NonNull
     public Intent getLogInIntent() {
-        return getLogInIntent(null);
+        return LoginActivity.newIntent();
     }
 
     @NonNull
@@ -143,44 +114,13 @@ public class Router {
         return RegisterActivity.newIntent();
     }
 
-    public void showMainDashboard(@NonNull Activity sourceActivity) {
-        showMainDashboard(sourceActivity, null);
+    public void showMainDashboard(Activity sourceActivity) {
+        sourceActivity.startActivity(MainDashboardActivity.newIntent());
     }
 
-    public void showMainDashboard(@NonNull Activity sourceActivity, @Nullable @ScreenDef String screenName) {
-        showMainDashboard(sourceActivity, screenName, null);
-    }
-
-    public void showMainDashboard(@NonNull Activity sourceActivity, @Nullable @ScreenDef String screenName,
-                                  @Nullable String pathId) {
-        sourceActivity.startActivity(MainDashboardActivity.newIntent(screenName, pathId));
-    }
-
-    public void showCourseDashboardTabs(@NonNull Activity activity,
-                                        @Nullable EnrolledCoursesResponse model,
+    public void showCourseDashboardTabs(Activity activity, EnrolledCoursesResponse model,
                                         boolean announcements) {
-        showCourseDashboardTabs(activity, model, null, null, null, announcements, null);
-    }
-
-    public void showCourseDashboardTabs(@NonNull Activity activity,
-                                        @Nullable EnrolledCoursesResponse model,
-                                        @Nullable String courseId,
-                                        @Nullable String topicId,
-                                        @Nullable String threadId,
-                                        boolean announcements,
-                                        @Nullable @ScreenDef String screenName) {
-        activity.startActivity(CourseTabsDashboardActivity.newIntent(activity, model, courseId,
-                topicId, threadId, announcements, screenName));
-    }
-
-    public void showCourseUpgradeWebViewActivity(@NonNull Context context,
-                                                 @NonNull String webUrl,
-                                                 @NonNull EnrolledCoursesResponse courseData,
-                                                 @Nullable CourseComponent unit) {
-        context.startActivity(
-                CourseUpgradeWebViewActivity.newIntent(context, webUrl,
-                        context.getResources().getString(R.string.place_order_title), courseData, unit)
-        );
+        activity.startActivity(CourseTabsDashboardActivity.newIntent(activity, model, announcements));
     }
 
     /**
@@ -210,34 +150,50 @@ public class Router {
                 .startActivities();
     }
 
-    public void showCourseContainerOutline(Activity activity, EnrolledCoursesResponse courseData,
-                                           CourseUpgradeResponse courseUpgradeData,
+    public void showCourseContainerOutline(Activity activity, EnrolledCoursesResponse model,
                                            String courseComponentId) {
-        Intent courseDetail = CourseOutlineActivity.newIntent(activity, courseData,
-                courseUpgradeData, courseComponentId, null, false);
+        showCourseContainerOutline(activity, -1, model, courseComponentId, null, false);
+    }
+
+    public void showCourseContainerOutline(Activity activity, int requestCode,
+                                           EnrolledCoursesResponse model, String courseComponentId,
+                                           String lastAccessedId, boolean isVideosMode) {
+        Intent courseDetail = createCourseOutlineIntent(activity, model, courseComponentId,
+                lastAccessedId, isVideosMode);
         //TODO - what's the most suitable FLAG?
         // courseDetail.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        activity.startActivityForResult(courseDetail, -1);
+        activity.startActivityForResult(courseDetail, requestCode);
     }
 
     public void showCourseContainerOutline(Fragment fragment, int requestCode,
-                                           EnrolledCoursesResponse courseData,
-                                           CourseUpgradeResponse courseUpgradeData,
-                                           String courseComponentId,
+                                           EnrolledCoursesResponse model, String courseComponentId,
                                            String lastAccessedId, boolean isVideosMode) {
-        Intent courseDetail = CourseOutlineActivity.newIntent(fragment.getActivity(),
-                courseData, courseUpgradeData, courseComponentId, lastAccessedId, isVideosMode);
+        Intent courseDetail = createCourseOutlineIntent(fragment.getActivity(), model,
+                courseComponentId, lastAccessedId, isVideosMode);
         //TODO - what's the most suitable FLAG?
         // courseDetail.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         fragment.startActivityForResult(courseDetail, requestCode);
     }
 
+    private Intent createCourseOutlineIntent(Activity activity, EnrolledCoursesResponse model,
+                                             String courseComponentId, String lastAccessedId,
+                                             boolean isVideosMode) {
+        Bundle courseBundle = new Bundle();
+        courseBundle.putSerializable(EXTRA_COURSE_DATA, model);
+        courseBundle.putString(EXTRA_COURSE_COMPONENT_ID, courseComponentId);
+
+        final Intent intent = new Intent(activity, CourseOutlineActivity.class);
+        intent.putExtra(EXTRA_BUNDLE, courseBundle);
+        intent.putExtra(EXTRA_LAST_ACCESSED_ID, lastAccessedId);
+        intent.putExtra(EXTRA_IS_VIDEOS_MODE, isVideosMode);
+
+        return intent;
+    }
+
     public void showCourseUnitDetail(Fragment fragment, int requestCode, EnrolledCoursesResponse model,
-                                     CourseUpgradeResponse courseUpgradeData,
                                      String courseComponentId, boolean isVideosMode) {
         Bundle courseBundle = new Bundle();
         courseBundle.putSerializable(EXTRA_COURSE_DATA, model);
-        courseBundle.putParcelable(EXTRA_COURSE_UPGRADE_DATA, courseUpgradeData);
         courseBundle.putSerializable(EXTRA_COURSE_COMPONENT_ID, courseComponentId);
 
         Intent courseDetail = new Intent(fragment.getActivity(), CourseUnitNavigationActivity.class);
@@ -272,52 +228,17 @@ public class Router {
         activity.startActivity(showDiscussionPostsIntent);
     }
 
-    public void showCourseDiscussionPostsForDiscussionTopic(Activity activity, String topicId,
-                                                            String threadId, EnrolledCoursesResponse courseData) {
-        showCourseDiscussionPostsForDiscussionTopic(activity, null, topicId, threadId, courseData);
-    }
-
-    public void showCourseDiscussionPostsForDiscussionTopic(Activity activity, DiscussionTopic topic,
-                                                            EnrolledCoursesResponse courseData) {
-        showCourseDiscussionPostsForDiscussionTopic(activity, topic, null, null, courseData);
-    }
-
-    public void showCourseDiscussionPostsForDiscussionTopic(Activity activity, DiscussionTopic topic,
-                                                            String topicId, String threadId,
-                                                            EnrolledCoursesResponse courseData) {
+    public void showCourseDiscussionPostsForDiscussionTopic(Activity activity, DiscussionTopic topic, EnrolledCoursesResponse courseData) {
         Intent showDiscussionPostsIntent = new Intent(activity, CourseDiscussionPostsActivity.class);
         showDiscussionPostsIntent.putExtra(EXTRA_COURSE_DATA, courseData);
-        if (topic != null) {
-            showDiscussionPostsIntent.putExtra(EXTRA_DISCUSSION_TOPIC, topic);
-        }
-        showDiscussionPostsIntent.putExtra(Router.EXTRA_DISCUSSION_TOPIC_ID, topicId);
-        showDiscussionPostsIntent.putExtra(Router.EXTRA_DISCUSSION_THREAD_ID, threadId);
-        showDiscussionPostsIntent.putExtra(CourseDiscussionPostsThreadFragment.ARG_DISCUSSION_HAS_TOPIC_NAME, topic != null);
+        showDiscussionPostsIntent.putExtra(EXTRA_DISCUSSION_TOPIC, topic);
         showDiscussionPostsIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activity.startActivity(showDiscussionPostsIntent);
     }
 
-    public void showCourseDiscussionResponses(@NonNull Context context, @Nullable String threadId,
-                                              @NonNull EnrolledCoursesResponse courseData) {
-        showCourseDiscussionResponses(context, null, threadId, courseData);
-    }
-
-    public void showCourseDiscussionResponses(@NonNull Context context,
-                                              @Nullable DiscussionThread discussionThread,
-                                              @NonNull EnrolledCoursesResponse courseData) {
-        showCourseDiscussionResponses(context, discussionThread, null, courseData);
-    }
-
-    public void showCourseDiscussionResponses(@NonNull Context context,
-                                              @Nullable DiscussionThread discussionThread,
-                                              @Nullable String threadId,
-                                              @NonNull EnrolledCoursesResponse courseData) {
+    public void showCourseDiscussionResponses(Context context, DiscussionThread discussionThread, EnrolledCoursesResponse courseData) {
         Intent discussionResponsesIntent = new Intent(context, CourseDiscussionResponsesActivity.class);
-        if (discussionThread != null) {
-            discussionResponsesIntent.putExtra(EXTRA_DISCUSSION_THREAD, discussionThread);
-        } else if (threadId != null) {
-            discussionResponsesIntent.putExtra(EXTRA_DISCUSSION_THREAD_ID, threadId);
-        }
+        discussionResponsesIntent.putExtra(EXTRA_DISCUSSION_THREAD, discussionThread);
         discussionResponsesIntent.putExtra(EXTRA_COURSE_DATA, courseData);
         discussionResponsesIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(discussionResponsesIntent);
@@ -403,28 +324,26 @@ public class Router {
         context.startActivity(CourseDetailActivity.newIntent(context, courseDetail));
     }
 
+    public void showFindCourses(@NonNull Context context) {
+        showFindCourses(context, null);
+    }
+
     public void showFindCourses(@NonNull Context context, @Nullable String searchQuery) {
-        showFindCourses(context, searchQuery, null, null);
-    }
-
-    public void showFindCourses(@NonNull Context context, @ScreenDef @Nullable String screenName, @Nullable String pathId) {
-        showFindCourses(context, null, screenName, pathId);
-    }
-
-    public void showFindCourses(@NonNull Context context, @Nullable String searchQuery,
-                                @ScreenDef @Nullable String screenName, @Nullable String pathId) {
-        if (!config.getDiscoveryConfig().getCourseDiscoveryConfig().isDiscoveryEnabled()) {
+        if (!config.getCourseDiscoveryConfig().isCourseDiscoveryEnabled()) {
             throw new RuntimeException("Course discovery is not enabled");
         }
-        final Intent discoveryIntent = DiscoveryActivity.newIntent(context);
-        if (searchQuery != null) {
-            discoveryIntent.putExtra(Router.EXTRA_SEARCH_QUERY, searchQuery);
+        final Intent findCoursesIntent;
+        if (config.getCourseDiscoveryConfig().isWebviewCourseDiscoveryEnabled()) {
+            findCoursesIntent = new Intent(context, WebViewFindCoursesActivity.class);
+            if (searchQuery != null) {
+                findCoursesIntent.putExtra(Router.EXTRA_SEARCH_QUERY, searchQuery);
+            }
+        } else {
+            findCoursesIntent = NativeFindCoursesActivity.newIntent(context);
         }
-        discoveryIntent.putExtra(EXTRA_SCREEN_NAME, screenName);
-        discoveryIntent.putExtra(Router.EXTRA_PATH_ID, pathId);
         //Add this flag as multiple activities need to be created
-        discoveryIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        context.startActivity(discoveryIntent);
+        findCoursesIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        context.startActivity(findCoursesIntent);
     }
 
     public void showWhatsNewActivity(@NonNull Activity activity) {
@@ -432,28 +351,15 @@ public class Router {
     }
 
     public void showAccountActivity(@NonNull Activity activity) {
-        activity.startActivity(AccountActivity.newIntent(activity, null));
-    }
-
-    public void showAccountActivity(@NonNull Activity activity, @Nullable @ScreenDef String screenName) {
-        activity.startActivity(AccountActivity.newIntent(activity, screenName));
-    }
-
-    public void showPaymentsInfoActivity(@NonNull Context context, @NonNull EnrolledCoursesResponse courseDate,
-                                         @NonNull CourseUpgradeResponse courseUpgrade) {
-        context.startActivity(PaymentsInfoActivity.Companion.newIntent(context, courseDate, courseUpgrade));
+        activity.startActivity(AccountActivity.newIntent(activity));
     }
 
     public void showSubjectsActivityForResult(@NonNull Fragment fragment, int requestCode) {
         fragment.startActivityForResult(ViewSubjectsActivity.newIntent(fragment.getActivity()), requestCode);
     }
 
-    public void showProgramWebViewActivity(@NonNull Activity activity, final IEdxEnvironment environment,
-                                           final String pathId, @NonNull String title) {
-        final CharSequence url = ResourceUtil.getFormattedString(
-                environment.getConfig().getProgramConfig().getDetailUrlTemplate(),
-                WebViewLink.Param.PATH_ID, pathId);
-        activity.startActivity(ProgramWebViewActivity.newIntent(activity, url.toString(), title));
+    public void showAuthenticatedWebviewActivity(@NonNull Activity activity, @NonNull String url, @NonNull String title) {
+        activity.startActivity(AuthenticatedWebViewActivity.newIntent(activity, url, title));
     }
 
     /**

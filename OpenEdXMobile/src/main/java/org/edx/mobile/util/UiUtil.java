@@ -1,5 +1,6 @@
 package org.edx.mobile.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -9,8 +10,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.TypedValue;
 import android.view.View;
@@ -22,7 +21,6 @@ import org.edx.mobile.base.MainApplication;
 import org.edx.mobile.logger.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * Created by marcashman on 2014-12-02.
@@ -66,7 +64,11 @@ public class UiUtil {
 
     public static boolean isLeftToRightOrientation() {
         Configuration config = MainApplication.instance().getResources().getConfiguration();
-        return config.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return config.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -100,6 +102,38 @@ public class UiUtil {
                 context.getPackageName());
     }
 
+    @RawRes
+    public static int getRawFile(@NonNull Context context, @NonNull String fileName) {
+        return context.getResources().getIdentifier(fileName, "raw", context.getPackageName());
+    }
+
+
+    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
+    /**
+     * Generates a unique ID for a view.
+     * <br/>
+     * Inspiration: https://stackoverflow.com/a/25855295/1402616
+     *
+     * @return View ID.
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public static int generateViewId() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            for (; ; ) {
+                final int result = sNextGeneratedId.get();
+                // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+                int newValue = result + 1;
+                if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
+                if (sNextGeneratedId.compareAndSet(result, newValue)) {
+                    return result;
+                }
+            }
+        } else {
+            return View.generateViewId();
+        }
+    }
+
     /**
      * Sets the color scheme of the provided {@link SwipeRefreshLayout}.
      *
@@ -108,35 +142,5 @@ public class UiUtil {
     public static void setSwipeRefreshLayoutColors(@NonNull SwipeRefreshLayout swipeRefreshLayout) {
         swipeRefreshLayout.setColorSchemeResources(R.color.edx_brand_primary_accent,
                 R.color.edx_brand_gray_x_back);
-    }
-
-    /**
-     * Restarts the fragment without destroying the fragment instance.
-     *
-     * @param The fragment to restart.
-     */
-    public static void restartFragment(@Nullable Fragment fragment) {
-        if (fragment != null) {
-            fragment.getFragmentManager().beginTransaction()
-                    .detach(fragment)
-                    .attach(fragment).commitAllowingStateLoss();
-        }
-    }
-
-    /**
-     * Method to remove the child {@link Fragment} against the provided tag.
-     *
-     * @param parentFragment {@link Fragment} that containing the child {@link Fragment}
-     * @param tag            string to search the fragment.
-     */
-    public static void removeFragmentByTag(@NonNull Fragment parentFragment, @NonNull String tag) {
-        if (parentFragment.isAdded()) {
-            final FragmentManager fragmentManager = parentFragment.getChildFragmentManager();
-            final Fragment fragment = fragmentManager.findFragmentByTag(tag);
-            if (fragment != null) {
-                fragmentManager.beginTransaction().remove(fragment)
-                        .commitAllowingStateLoss();
-            }
-        }
     }
 }

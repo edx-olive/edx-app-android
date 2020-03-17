@@ -32,12 +32,11 @@ public interface Analytics {
      *
      * @param videoId     - Video Id that is being Played
      * @param currentTime - Video Playing started at
-     * @param courseId    - CourseId under which the video is present
      * @param unitUrl     - Page Url for that Video
-     * @param playMedium  - Play Medium (e.g {@link Values#GOOGLE_CAST})
+     * @param courseId    - CourseId under which the video is present
      */
     void trackVideoPlaying(String videoId, Double currentTime,
-                           String courseId, String unitUrl, String playMedium);
+                           String courseId, String unitUrl);
 
     /**
      * This function is used to track Video Pause
@@ -46,10 +45,9 @@ public interface Analytics {
      * @param currentTime - Video Playing started at
      * @param courseId    - CourseId under which the video is present
      * @param unitUrl     - Page Url for that Video
-     * @param playMedium  - Play Medium (e.g {@link Values#YOUTUBE})
      */
     void trackVideoPause(String videoId, Double currentTime,
-                         String courseId, String unitUrl, String playMedium);
+                         String courseId, String unitUrl);
 
     /**
      * This function is used to track Video Stop
@@ -85,19 +83,6 @@ public interface Analytics {
                              String courseId, String unitUrl);
 
     /**
-     * This function is used to track the video playback speed changes
-     *
-     * @param videoId
-     * @param currentTime
-     * @param courseId
-     * @param unitUrl
-     * @param oldSpeed
-     * @param newSpeed
-     */
-    void trackVideoSpeed(String videoId, Double currentTime, String courseId,
-                         String unitUrl, float oldSpeed, float newSpeed);
-
-    /**
      * This function is used to track Video Loading
      *
      * @param videoId
@@ -130,15 +115,6 @@ public interface Analytics {
      */
     void trackDownloadComplete(String videoId, String courseId,
                                String unitUrl);
-
-    /**
-     * Track user's successful course upgrade.
-     *
-     * @param blockId         ID of the locked course unit from which the user is redirected to upgrade screen.
-     * @param courseId        ID of the course which user has upgraded.
-     * @param minifiedBlockId Block ID of the locked course unit from which the user is redirected to upgrade screen.
-     */
-    void trackCourseUpgradeSuccess(String blockId, String courseId, String minifiedBlockId);
 
     /**
      * This function is used to track launching the browser
@@ -200,10 +176,9 @@ public interface Analytics {
      * @param isLandscape -  true / false based on orientation
      * @param courseId
      * @param unitUrl
-     * @param playMedium  - Play Medium (e.g {@link Values#YOUTUBE})
      */
     void trackVideoOrientation(String videoId, Double currentTime,
-                               boolean isLandscape, String courseId, String unitUrl, String playMedium);
+                               boolean isLandscape, String courseId, String unitUrl);
 
     /**
      * Tracks search of courses in the app.
@@ -403,42 +378,11 @@ public interface Analytics {
      */
     void trackSubjectClicked(@NonNull String subjectId);
 
-    /**
-     * Track the pressing of 'Download Video to SD Card' switch to ON state.
-     */
-    void trackDownloadToSdCardSwitchOn();
-
-    /**
-     * Track the pressing of 'Download Video to SD Card' switch to OFF state.
-     */
-    void trackDownloadToSdCardSwitchOff();
-
-    /**
-     * Track the parameters relevant to the experiment of Firebase Remote Configs.
-     * Ref: https://openedx.atlassian.net/browse/LEARNER-7394
-     *
-     * @param experimentName
-     * @param values any custom key-value pairs we need to send with event
-     */
-    void trackExperimentParams(String experimentName, Map<String, String> values);
-
-    /**
-     * Track the casting device connection.
-     *
-     * @param eventName       Cast Event Name
-     * @param connectionState State of casting device (e.g {@link Values#CAST_CONNECTED})
-     * @param playMedium      Casting device playMedium (e.g {@link Values#GOOGLE_CAST})
-     */
-    void trackCastDeviceConnectionChanged(@NonNull String eventName, @NonNull String connectionState,
-                                          @NonNull String playMedium);
-
     interface Keys {
         String NAME = "name";
         String USER_ID = "user_id";
         String OLD_TIME = "old_time";
         String NEW_TIME = "new_time";
-        String NEW_SPEED = "new_speed";
-        String OLD_SPEED = "old_speed";
         String SEEK_TYPE = "seek_type";
         String REQUESTED_SKIP_INTERVAL = "requested_skip_interval";
         String MODULE_ID = "module_id";
@@ -495,13 +439,6 @@ public interface Analytics {
         String REMAINING_DOWNLOADABLE_VIDEOS = "remaining_downloadable_videos";
         // Subjects
         String SUBJECT_ID = "subject_id";
-        // Firebase Remote Configs keys for A/A test
-        // Ref: https://openedx.atlassian.net/browse/LEARNER-7394
-        String EXPERIMENT = "experiment";
-        String GROUP = "group";
-        String AA_EXPERIMENT = "aa_experiment";
-        // Video Play Medium
-        String PLAY_MEDIUM = "play_medium";
     }
 
     interface Values {
@@ -521,7 +458,6 @@ public interface Analytics {
         //The seek event name has been changed as per MOB-1273
         String VIDEO_SEEKED = "edx.video.position.changed";
         String TRANSCRIPT_SHOWN = "edx.video.transcript.shown";
-        String VIDEO_PLAYBACK_SPEED_CHANGED = "edx.bi.video.speed.changed";
         String TRANSCRIPT_HIDDEN = "edx.video.transcript.hidden";
         String TRANSCRIPT_LANGUAGE = "edx.bi.video.transcript.language.selected";
         String FULLSREEN_TOGGLED = "edx.bi.video.screen.fullscreen.toggled";
@@ -538,7 +474,6 @@ public interface Analytics {
         String USER_REGISTRATION_SUCCESS = "edx.bi.app.user.register.success";
         String USER_COURSE_ENROLL_CLICKED = "edx.bi.app.course.enroll.clicked";
         String USER_COURSE_ENROLL_SUCCESS = "edx.bi.app.course.enroll.success";
-        String USER_COURSE_UPGRADE_SUCCESS = "edx.bi.app.course.upgrade.success";
         String USER_NO_ACCOUNT = "edx.bi.app.user.signup.clicked";
         String CONVERSION = "conversion";
         String USER_ENGAGEMENT = "user-engagement";
@@ -601,24 +536,10 @@ public interface Analytics {
         String SUBJECT_CLICKED = "edx.bi.app.discover.subject.clicked";
         String DISCOVERY = "discovery";
         String VIEW_ALL_SUBJECTS = "View All Subjects";
-        // Settings event values
-        String DOWNLOAD_TO_SD_CARD_SWITCH_ON = "edx.bi.app.settings.sdcard.toggle.on";
-        String DOWNLOAD_TO_SD_CARD_SWITCH_OFF = "edx.bi.app.settings.sdcard.toggle.off";
-        // Cast device connection state
-        String CAST_CONNECTED = "edx.bi.app.cast.connected";
-        String CAST_DISCONNECTED = "edx.bi.app.cast.disconnected";
-        String VIDEO_CASTED = "edx.bi.app.cast.video_casted";
-        // -- Play mediums --
-        // Casting Device Types
-        String GOOGLE_CAST = "google_cast";
-        // YouTube Player Type
-        String YOUTUBE = "youtube";
-
     }
 
     interface Screens {
         String COURSE_INFO_SCREEN = "Course Info";
-        String PROGRAM_INFO_SCREEN = "Program Info";
         String LAUNCH_ACTIVITY = "Launch";
         String REGISTER = "Register";
         String LOGIN = "Login";
@@ -632,8 +553,6 @@ public interface Analytics {
         String CERTIFICATE = "View Certificate";
         String DOWNLOADS = "Downloads";
         String FIND_COURSES = "Find Courses";
-        String FIND_PROGRAMS = "Find Programs";
-        String FIND_DEGREES = "Find Degrees";
         String MY_COURSES = "My Courses";
         String SETTINGS = "Settings";
         String FORUM_VIEW_TOPICS = "Forum: View Topics";
@@ -655,9 +574,6 @@ public interface Analytics {
         String WHATS_NEW = "WhatsNew: Whats New";
         String VIDEOS_COURSE_VIDEOS = "Videos: Course Videos";
         String ALL_SUBJECTS = "Discover: All Subjects";
-        String PAYMENTS_INFO_SCREEN = "Payments info";
-        String COURSE_UNIT_LOCKED = "Course unit locked";
-        String PLACE_ORDER_COURSE_UPGRADE = "Place order: course upgrade";
     }
 
     interface Events {
@@ -667,7 +583,6 @@ public interface Analytics {
         String STOPPED_VIDEO = "Stopped Video";
         String SEEK_VIDEO = "Seeked Video";
         String SHOW_TRANSCRIPT = "Show Transcript";
-        String SPEED_CHANGE_VIDEO = "Speed Change Video";
         String HIDE_TRANSCRIPT = "Hide Transcript";
         String VIDEO_DOWNLOADED = "Video Downloaded";
         String BULK_DOWNLOAD_SUBSECTION = "Bulk Download Subsection";
@@ -683,7 +598,6 @@ public interface Analytics {
         String REGISTRATION_SUCCESS = "Registration Success";
         String COURSE_ENROLL_CLICKED = "Course Enroll Clicked";
         String COURSE_ENROLL_SUCCESS = "Course Enroll Success";
-        String COURSE_UPGRADE_SUCCESS = "Course Upgrade Success";
         String DISCOVERY_COURSES_SEARCH = "Discovery: Courses Search";
         String SPEED = "Connected Speed Report";
         String SOCIAL_CERTIFICATE_SHARED = "Shared a certificate";
@@ -713,16 +627,6 @@ public interface Analytics {
         String BULK_DOWNLOAD_TOGGLE_ON = "Bulk Download Toggle On";
         String BULK_DOWNLOAD_TOGGLE_OFF = "Bulk Download Toggle Off";
         String SUBJECT_DISCOVERY = "Subject Discovery";
-        // Settings events
-        String DOWNLOAD_TO_SD_CARD_ON = "Download to sd-card On";
-        String DOWNLOAD_TO_SD_CARD_OFF = "Download to sd-card Off";
-        // Firebase Remote Configs Event name for A/A test
-        // Ref: https://openedx.atlassian.net/browse/LEARNER-7394
-        String MOBILE_EXPERIMENT_EVALUATED = "Mobile Experiment Evaluated";
-        // Casting Devices Event
-        String CAST_CONNECTED = "Cast: Connected";
-        String CAST_DISCONNECTED = "Cast: Disconnected";
-        String VIDEO_CASTED = "Cast: Video Casted";
     }
 
     /**

@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.LinearLayout;
@@ -80,6 +81,7 @@ public class RegisterActivity extends BaseFragmentActivity
     private View registrationForm;
     private View facebookButton;
     private View googleButton;
+    private View samlButton;
     private TextView errorTextView;
 
     @Inject
@@ -119,6 +121,7 @@ public class RegisterActivity extends BaseFragmentActivity
         boolean isSocialEnabled = false;
         facebookButton = findViewById(R.id.facebook_button);
         googleButton = findViewById(R.id.google_button);
+        samlButton = findViewById(R.id.saml_button);
 
         if (!SocialFactory.isSocialFeatureEnabled(getApplication(), SocialFactory.SOCIAL_SOURCE_TYPE.TYPE_FACEBOOK, environment.getConfig())) {
             facebookButton.setVisibility(View.GONE);
@@ -133,6 +136,22 @@ public class RegisterActivity extends BaseFragmentActivity
             isSocialEnabled = true;
             googleButton.setOnClickListener(socialLoginDelegate.createSocialButtonClickHandler(SocialFactory.SOCIAL_SOURCE_TYPE.TYPE_GOOGLE));
         }
+
+        if (!SocialFactory.isSocialFeatureEnabled(getApplication(), SocialFactory.SOCIAL_SOURCE_TYPE.TYPE_SAML, environment.getConfig())) {
+            samlButton.setVisibility(View.GONE);
+        } else {
+            isSocialEnabled = true;
+            samlButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //redirect to SAML webview activity
+                    Intent intent = SamlWebViewActivity.newIntent();
+                    intent.putExtra("AUTH_ENTRY", "register");
+                    startActivity(intent);
+                }
+            });
+        }
+
         if (!isSocialEnabled) {
             findViewById(R.id.panel_social_layout).setVisibility(View.GONE);
             findViewById(R.id.or_signup_with_email_title).setVisibility(View.GONE);
@@ -616,6 +635,7 @@ public class RegisterActivity extends BaseFragmentActivity
 
         facebookButton.setClickable(enable);
         googleButton.setClickable(enable);
+        samlButton.setClickable(enable);
 
         return true;
     }

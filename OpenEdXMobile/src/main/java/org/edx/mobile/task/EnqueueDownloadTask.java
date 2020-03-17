@@ -23,14 +23,12 @@ public abstract class EnqueueDownloadTask extends Task<Long> {
     }
 
     @Override
-    public Long call() {
+    public Long call() throws Exception {
         int count = 0;
-        for (DownloadEntry downloadEntry : downloadList) {
-            if (environment.getStorage().addDownload(downloadEntry) != -1) {
+        for (DownloadEntry de : downloadList) {
+            if (environment.getStorage().addDownload(de) != -1) {
                 count++;
-                for (String value : downloadEntry.transcript.values()) {
-                    transcriptManager.downloadTranscriptsForVideo(value, null);
-                }
+                transcriptManager.downloadTranscriptsForVideo(de.transcript);
             }
         }
         return (long) count;

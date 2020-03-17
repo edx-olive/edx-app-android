@@ -5,6 +5,9 @@ import android.webkit.URLUtil;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.edx.mobile.base.MainApplication;
+import org.edx.mobile.util.AppConstants;
+import org.edx.mobile.util.Config;
 import org.edx.mobile.util.VideoUtil;
 
 import java.io.Serializable;
@@ -28,11 +31,6 @@ public class EncodedVideos implements Serializable {
     @SerializedName("youtube")
     public VideoInfo youtube;
 
-    /**
-     * Extract the Preferred {@link VideoInfo} for media playback and to store in database.
-     *
-     * @return Preferred {@link VideoInfo}
-     */
     @Nullable
     public VideoInfo getPreferredVideoInfo() {
         if (isPreferredVideoInfo(hls)) {
@@ -44,17 +42,19 @@ public class EncodedVideos implements Serializable {
         if (isPreferredVideoInfo(mobileHigh)) {
             return mobileHigh;
         }
-        if (isPreferredVideoInfo(fallback)) {
-            return fallback;
+        if (new Config(MainApplication.instance()).isUsingVideoPipeline()) {
+            if (fallback != null && URLUtil.isNetworkUrl(fallback.url) &&
+                    VideoUtil.videoHasFormat(fallback.url, AppConstants.VIDEO_FORMAT_M3U8)) {
+                return fallback;
+            }
+        } else {
+            if (isPreferredVideoInfo(fallback)) {
+                return fallback;
+            }
         }
         return null;
     }
 
-    /**
-     * Extract the Preferred {@link VideoInfo} for media downloading.
-     *
-     * @return Preferred {@link VideoInfo}
-     */
     @Nullable
     public VideoInfo getPreferredVideoInfoForDownloading() {
         if (isPreferredVideoInfo(mobileLow)) {
@@ -63,7 +63,8 @@ public class EncodedVideos implements Serializable {
         if (isPreferredVideoInfo(mobileHigh)) {
             return mobileHigh;
         }
-        if (isPreferredVideoInfo(fallback) &&
+        if (!new Config(MainApplication.instance()).isUsingVideoPipeline() &&
+                isPreferredVideoInfo(fallback) &&
                 !VideoUtil.videoHasFormat(fallback.url, VIDEO_FORMAT_M3U8)) {
             return fallback;
         }

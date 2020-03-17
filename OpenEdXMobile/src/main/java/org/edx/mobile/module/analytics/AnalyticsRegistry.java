@@ -72,13 +72,6 @@ public class AnalyticsRegistry implements Analytics {
     }
 
     @Override
-    public void trackCourseUpgradeSuccess(String blockId, String courseId, String minifiedBlockId) {
-        for (Analytics service : services) {
-            service.trackCourseUpgradeSuccess(blockId, courseId, minifiedBlockId);
-        }
-    }
-
-    @Override
     public void trackUserFindsCourses() {
         for (Analytics service : services) {
             service.trackUserFindsCourses();
@@ -144,9 +137,9 @@ public class AnalyticsRegistry implements Analytics {
 
     @Override
     public void trackVideoPause(String videoId, Double currentTime,
-                                String courseId, String unitUrl, String playMedium) {
+                                String courseId, String unitUrl) {
         for (Analytics service : services) {
-            service.trackVideoPause(videoId, currentTime, courseId, unitUrl, playMedium);
+            service.trackVideoPause(videoId, currentTime, courseId, unitUrl);
         }
     }
 
@@ -159,9 +152,9 @@ public class AnalyticsRegistry implements Analytics {
 
     @Override
     public void trackVideoPlaying(String videoId, Double currentTime,
-                                  String courseId, String unitUrl, String playMedium) {
+                                  String courseId, String unitUrl) {
         for (Analytics service : services) {
-            service.trackVideoPlaying(videoId, currentTime, courseId, unitUrl, playMedium);
+            service.trackVideoPlaying(videoId, currentTime, courseId, unitUrl);
         }
     }
 
@@ -174,9 +167,9 @@ public class AnalyticsRegistry implements Analytics {
 
     @Override
     public void trackVideoOrientation(String videoId, Double currentTime, boolean isLandscape,
-                                      String courseId, String unitUrl, String playMedium) {
+                                      String courseId, String unitUrl) {
         for (Analytics service : services) {
-            service.trackVideoOrientation(videoId, currentTime, isLandscape, courseId, unitUrl, playMedium);
+            service.trackVideoOrientation(videoId, currentTime, isLandscape, courseId, unitUrl);
         }
     }
 
@@ -201,13 +194,6 @@ public class AnalyticsRegistry implements Analytics {
                                     String courseId, String unitUrl) {
         for (Analytics service : services) {
             service.trackShowTranscript(videoId, currentTime, courseId, unitUrl);
-        }
-    }
-
-    public void trackVideoSpeed(String videoId, Double currentTime,
-                                String courseId, String unitUrl, float oldSpeed, float newSpeed) {
-        for (Analytics service : services) {
-            service.trackVideoSpeed(videoId, currentTime, courseId, unitUrl, oldSpeed, newSpeed);
         }
     }
 
@@ -409,34 +395,6 @@ public class AnalyticsRegistry implements Analytics {
     public void trackSubjectClicked(@NonNull String subjectId) {
         for (Analytics service : services) {
             service.trackSubjectClicked(subjectId);
-        }
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOn() {
-        for (Analytics service : services) {
-            service.trackDownloadToSdCardSwitchOn();
-        }
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOff() {
-        for (Analytics service : services) {
-            service.trackDownloadToSdCardSwitchOff();
-        }
-    }
-
-    @Override
-    public void trackExperimentParams(String experimentName, Map<String, String> values) {
-        for (Analytics service : services) {
-            service.trackExperimentParams(experimentName, values);
-        }
-    }
-
-    @Override
-    public void trackCastDeviceConnectionChanged(@NonNull String eventName, @NonNull String connectionState, @NonNull String playMedium) {
-        for (Analytics service : services) {
-            service.trackCastDeviceConnectionChanged(eventName, connectionState, playMedium);
         }
     }
 }

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.webkit.CookieManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -29,6 +30,8 @@ public class IDownloadManagerImpl implements IDownloadManager {
     @Inject
     public IDownloadManagerImpl(Context context) {
         this.context = context;
+        dm = (DownloadManager) context.getSystemService(
+            Context.DOWNLOAD_SERVICE);
     }
 
     @Override
@@ -98,6 +101,9 @@ public class IDownloadManagerImpl implements IDownloadManager {
 
         Uri target = Uri.fromFile(new File(destFolder, Sha1Util.SHA1(url)));
         Request request = new Request(Uri.parse(url));
+        String cookies = CookieManager.getInstance().getCookie(url);
+        request.addRequestHeader("cookie", cookies);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationUri(target);
         request.setTitle(title);
 

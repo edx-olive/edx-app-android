@@ -1,6 +1,8 @@
 package org.edx.mobile.http.provider;
 
 import android.content.Context;
+import android.os.Build;
+import android.os.LocaleList;
 import android.support.annotation.NonNull;
 
 import com.google.inject.Inject;
@@ -9,21 +11,29 @@ import com.google.inject.Singleton;
 
 import org.edx.mobile.BuildConfig;
 import org.edx.mobile.R;
-import org.edx.mobile.http.authenticator.OauthRefreshTokenAuthenticator;
+import org.edx.mobile.http.interceptor.CustomCacheQueryInterceptor;
+import org.edx.mobile.http.interceptor.JsonMergePatchInterceptor;
 import org.edx.mobile.http.interceptor.NewVersionBroadcastInterceptor;
 import org.edx.mobile.http.interceptor.NoCacheHeaderStrippingInterceptor;
 import org.edx.mobile.http.interceptor.OauthHeaderRequestInterceptor;
+import org.edx.mobile.http.authenticator.OauthRefreshTokenAuthenticator;
 import org.edx.mobile.http.interceptor.StaleIfErrorHandlingInterceptor;
 import org.edx.mobile.http.interceptor.StaleIfErrorInterceptor;
 import org.edx.mobile.http.interceptor.UserAgentInterceptor;
 import org.edx.mobile.http.util.Tls12SocketFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.internal.Util;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 public interface OkHttpClientProvider extends Provider<OkHttpClient> {
@@ -67,7 +77,10 @@ public interface OkHttpClientProvider extends Provider<OkHttpClient> {
                     (usesOfflineCache ? USES_OFFLINE_CACHE : 0);
             OkHttpClient client = clients[index];
             if (client == null) {
-                final OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                final OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                        .connectTimeout(20, TimeUnit.SECONDS)
+                        .writeTimeout(20, TimeUnit.SECONDS)
+                        .readTimeout(30, TimeUnit.SECONDS);
                 List<Interceptor> interceptors = builder.interceptors();
                 if (usesOfflineCache) {
                     final File cacheDirectory = new File(context.getFilesDir(), "http-cache");
@@ -78,13 +91,36 @@ public interface OkHttpClientProvider extends Provider<OkHttpClient> {
                     builder.cache(cache);
                     interceptors.add(new StaleIfErrorInterceptor());
                     interceptors.add(new StaleIfErrorHandlingInterceptor());
+                    interceptors.add(new CustomCacheQueryInterceptor(context));
                     builder.networkInterceptors().add(new NoCacheHeaderStrippingInterceptor());
                 }
+                interceptors.add(new JsonMergePatchInterceptor());
                 interceptors.add(new UserAgentInterceptor(
                         System.getProperty("http.agent") + " " +
-                                context.getString(R.string.app_name) + "/" +
+                                Util.toHumanReadableAscii(context.getString(R.string.app_name)) + "/" +
                                 BuildConfig.APPLICATION_ID + "/" +
                                 BuildConfig.VERSION_NAME));
+                interceptors.add(new Interceptor() {
+
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request.Builder builder = chain.request().newBuilder();
+
+                        builder.addHeader("Accept-Language", getLanguage());
+                        Request request = builder.build();
+                        Response response = chain.proceed(request);
+
+                        return response;
+                    }
+
+                    private String getLanguage() {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            return LocaleList.getDefault().toLanguageTags();
+                        } else {
+                            return Locale.getDefault().getLanguage();
+                        }
+                    }
+                });
                 if (isOAuthBased) {
                     interceptors.add(new OauthHeaderRequestInterceptor(context));
                 }

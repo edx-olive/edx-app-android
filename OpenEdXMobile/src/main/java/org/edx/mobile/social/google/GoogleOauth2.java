@@ -140,9 +140,8 @@ public class GoogleOauth2 extends ISocialImpl{
                   // because the user must consent to offline access to their data.  After
                   // consent is granted control is returned to your activity in onActivityResult
                   // and the second call to GoogleAuthUtil.getToken will succeed.
-                if (activity != null && userRecoverableException.getIntent() != null) {
-                    activity.startActivityForResult(userRecoverableException.getIntent(), REQUEST_AUTHORIZATION);
-                }
+                
+                activity.startActivityForResult(userRecoverableException.getIntent(), REQUEST_AUTHORIZATION);
             } catch (GoogleAuthException fatalException) {
                 logger.warn("google auth error occurred");
                 // Some other type of unrecoverable exception has occurred.

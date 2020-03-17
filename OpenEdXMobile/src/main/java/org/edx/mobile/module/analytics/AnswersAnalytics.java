@@ -38,12 +38,12 @@ public class AnswersAnalytics implements Analytics {
     }
 
     @Override
-    public void trackVideoPlaying(String videoId, Double currentTime, String courseId, String unitUrl, String playMedium) {
+    public void trackVideoPlaying(String videoId, Double currentTime, String courseId, String unitUrl) {
 
     }
 
     @Override
-    public void trackVideoPause(String videoId, Double currentTime, String courseId, String unitUrl, String playMedium) {
+    public void trackVideoPause(String videoId, Double currentTime, String courseId, String unitUrl) {
 
     }
 
@@ -55,11 +55,6 @@ public class AnswersAnalytics implements Analytics {
     @Override
     public void trackShowTranscript(String videoId, Double currentTime, String courseId, String unitUrl) {
 
-    }
-
-    @Override
-    public void trackVideoSpeed(String videoId, Double currentTime, String courseId,
-                                String unitUrl, float oldSpeed, float newSpeed) {
     }
 
     @Override
@@ -80,11 +75,6 @@ public class AnswersAnalytics implements Analytics {
     @Override
     public void trackDownloadComplete(String videoId, String courseId, String unitUrl) {
 
-    }
-
-    @Override
-    public void trackCourseUpgradeSuccess(String blockId, String courseId, String minifiedBlockId) {
-        
     }
 
     @Override
@@ -125,7 +115,7 @@ public class AnswersAnalytics implements Analytics {
     }
 
     @Override
-    public void trackVideoOrientation(String videoId, Double currentTime, boolean isLandscape, String courseId, String unitUrl, String playMedium) {
+    public void trackVideoOrientation(String videoId, Double currentTime, boolean isLandscape, String courseId, String unitUrl) {
 
     }
 
@@ -320,26 +310,6 @@ public class AnswersAnalytics implements Analytics {
 
     @Override
     public void trackSubjectClicked(@NonNull String subjectId) {
-
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOn() {
-
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOff() {
-
-    }
-
-    @Override
-    public void trackExperimentParams(String experimentName, Map<String, String> values) {
-
-    }
-
-    @Override
-    public void trackCastDeviceConnectionChanged(@NonNull String eventName, @NonNull String connectionState, @NonNull String playMedium) {
 
     }
 }

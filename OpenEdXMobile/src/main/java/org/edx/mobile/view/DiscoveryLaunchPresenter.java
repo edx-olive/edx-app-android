@@ -1,7 +1,6 @@
 package org.edx.mobile.view;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.util.Config;
@@ -11,18 +10,18 @@ public class DiscoveryLaunchPresenter extends ViewHoldingPresenter<DiscoveryLaun
     @NonNull
     private final LoginPrefs loginPrefs;
 
-    @Nullable
-    private final Config.CourseDiscoveryConfig courseDiscoveryConfig;
+    @NonNull
+    private final Config.EnrollmentConfig enrollmentConfig;
 
-    public DiscoveryLaunchPresenter(@NonNull LoginPrefs loginPrefs, @NonNull Config.CourseDiscoveryConfig courseDiscoveryConfig) {
+    public DiscoveryLaunchPresenter(@NonNull LoginPrefs loginPrefs, @NonNull Config.EnrollmentConfig enrollmentConfig) {
         this.loginPrefs = loginPrefs;
-        this.courseDiscoveryConfig = courseDiscoveryConfig;
+        this.enrollmentConfig = enrollmentConfig;
     }
 
     @Override
     public void attachView(@NonNull ViewInterface view) {
         super.attachView(view);
-        view.setEnabledButtons(courseDiscoveryConfig != null && courseDiscoveryConfig.isDiscoveryEnabled());
+        view.setEnabledButtons(enrollmentConfig.isCourseDiscoveryEnabled());
     }
 
     public void onResume() {

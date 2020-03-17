@@ -8,12 +8,20 @@ import android.support.annotation.Nullable;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.edx.mobile.logger.Logger;
 import org.edx.mobile.model.api.ProfileModel;
+import org.edx.mobile.util.AppConstants;
+import org.edx.mobile.util.FileUtil;
+import org.edx.mobile.util.Sha1Util;
+
+import java.io.File;
+import java.io.IOException;
 
 @Singleton
 public class UserPrefs {
 
     private Context context;
+    private final Logger logger = new Logger(getClass().getName());
 
     @NonNull
     private final LoginPrefs loginPrefs;
@@ -38,9 +46,30 @@ public class UserPrefs {
         return onlyWifi;
     }
 
-    public boolean isDownloadToSDCardEnabled() {
-        final PrefManager prefManger = new PrefManager(context, PrefManager.Pref.USER_PREF);
-        return prefManger.getBoolean(PrefManager.Key.DOWNLOAD_TO_SDCARD, false);
+    /**
+     * Returns user storage directory under /Android/data/ folder for the currently logged in user.
+     * This is the folder where all video downloads should be kept.
+     *
+     * @return
+     */
+    @Nullable
+    public File getDownloadDirectory() {
+        final File externalAppDir = FileUtil.getExternalAppDir(context);
+        final ProfileModel profile = getProfile();
+        if (externalAppDir != null && profile != null) {
+            File videosDir = new File(externalAppDir, AppConstants.Directories.VIDEOS);
+            File usersVidsDir = new File(videosDir, Sha1Util.SHA1(profile.username));
+            usersVidsDir.mkdirs();
+            try {
+                File noMediaFile = new File(usersVidsDir, ".nomedia");
+                noMediaFile.createNewFile();
+            } catch (IOException ioException) {
+                logger.error(ioException);
+            }
+
+            return usersVidsDir;
+        }
+        return null;
     }
 
     @Nullable

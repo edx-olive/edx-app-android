@@ -1,5 +1,6 @@
 package org.edx.mobile.view;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -46,5 +47,13 @@ public class CourseUnitDiscussionFragment extends CourseUnitFragment {
             fragmentTransaction.add(R.id.content, fragment);
             fragmentTransaction.commit();
         }
+        Configuration config = getResources().getConfiguration();
+        if(config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            view.setRotationY(180);
+        }
+    }
+
+    @Override
+    public void run() {
     }
 }

@@ -16,21 +16,17 @@ buildscript {
         //Included for NewRelic
         classpath "com.newrelic.agent.android:agent-gradle-plugin:5.4.1"
 
-//        TODO : Need to update when available, ( In order to resolve "variant.getConnectedInstrumentTest()" warning)
-//        Reference : https://github.com/facebook/screenshot-tests-for-android/issues/210
         classpath 'com.facebook.testing.screenshot:plugin:0.8.0'
-        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.google.gms:google-services:4.0.1'
     }
 }
 
 apply plugin: 'edxapp'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 edx {
     platform = ANDROID
 }
 
+apply plugin: 'com.android.application'
 apply plugin: 'newrelic'
 apply plugin: 'com.facebook.testing.screenshot'
 apply from: 'jacoco.gradle'
@@ -126,6 +122,7 @@ dependencies {
     // we need to ensure that it's updated along
     // with module updates.
     implementation project (':android-iconify-fontawesome')
+    //implementation project (':buildSrc')
 
     implementation "com.android.support:appcompat-v7:${SUPPORT_LIBRARY_VERSION}"
     implementation "com.android.support:recyclerview-v7:${SUPPORT_LIBRARY_VERSION}"
@@ -134,35 +131,15 @@ dependencies {
     // For the optional Nullable annotation
     implementation "com.android.support:support-annotations:${SUPPORT_LIBRARY_VERSION}"
 
-    // NOTE: Always update the version of google-services and firebase libraries using the ones
-    // provided in this link: https://developers.google.com/android/guides/releases
-    implementation "com.google.android.gms:play-services-plus:16.0.0"
-    implementation "com.google.android.gms:play-services-analytics:16.0.8"
-    implementation "com.google.android.gms:play-services-auth:16.0.1"
+    implementation "com.google.android.gms:play-services-plus:15.0.1"
+    implementation "com.google.android.gms:play-services-analytics:16.0.1"
+    implementation "com.google.android.gms:play-services-auth:15.0.1"
+    implementation "com.google.android.gms:play-services-ads:15.0.1"
     // Google Firebase
-    implementation "com.google.firebase:firebase-core:16.0.9"
-    implementation "com.google.firebase:firebase-messaging:18.0.0"
-    // Add the dependency for the Performance Monitoring library
-    implementation 'com.google.firebase:firebase-perf:17.0.2'
-    // Firebase remote config
-    implementation 'com.google.firebase:firebase-config:16.5.0'
+    implementation "com.google.firebase:firebase-core:16.0.1"
+    implementation "com.google.firebase:firebase-messaging:17.1.0"
 
-    // Add the In-App Messaging dependency:
-    implementation('com.google.firebase:firebase-inappmessaging-display:17.2.0') {
-        // This exclusion has been added due to a conflict between this library and Roboguice
-        // (which has already added the javax.inject group) causing the following error during
-        // compile time: Error: Program type already present: javax.inject.Inject
-        exclude group: 'javax.inject'
-    }
-
-//    Exo Player
-    implementation 'com.google.android.exoplayer:exoplayer:2.9.2'
-
-    // Google cast sdk
-    implementation 'com.android.support:mediarouter-v7:28.0.0'
-    implementation 'com.google.android.gms:play-services-cast-framework:16.2.0'
-
-    implementation 'com.facebook.android:facebook-login:5.9.0'
+    implementation 'com.facebook.android:facebook-login:4.36.0'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'de.greenrobot:eventbus:2.4.1'
     implementation 'com.squareup.phrase:phrase:1.1.0'
@@ -191,9 +168,7 @@ dependencies {
 
     // Segment Library
     implementation 'com.segment.analytics.android:analytics:4.2.6'
-    // Segment's Firebase integration
-    implementation 'com.segment.analytics.android.integrations:firebase:1.2.0'
-    // Segment's GA integration
+
     implementation('com.segment.analytics.android.integrations:google-analytics:1.0.0') {
         exclude module: 'play-services-analytics'
         transitive = true
@@ -224,7 +199,7 @@ dependencies {
         exclude group: 'org.hamcrest'
     }
     testImplementation 'commons-lang:commons-lang:2.6'
-    testImplementation "org.robolectric:robolectric:4.3.1"
+    testImplementation "org.robolectric:robolectric:3.8"
     testImplementation "org.robolectric:shadows-supportv4:3.8"
     testImplementation "org.robolectric:shadows-multidex:3.8"
     testImplementation 'org.assertj:assertj-core:2.5.0'
@@ -252,7 +227,6 @@ dependencies {
     androidTestImplementation ('org.mockito:mockito-core:1.10.19'){
         exclude group: 'org.hamcrest'
     }
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${KOTLIN_VERSION}"
 }
 
 configurations {
@@ -265,11 +239,7 @@ def firebase = config.get('FIREBASE')
 def firebaseEnabled = firebase?.get('ENABLED')
 if (firebaseEnabled?: false) {
     apply plugin: 'com.google.gms.google-services'
-    // Apply the Performance Monitoring plugin to enable instrumentation
-    apply plugin: 'com.google.firebase.firebase-perf'
 }
-// Variable to check if Firebase Cloud Messaging is enabled
-def fcmEnabled = config.get('PUSH_NOTIFICATIONS') && firebaseEnabled && firebase?.get('CLOUD_MESSAGING_ENABLED')
 
 android {
     signingConfigs {
@@ -378,13 +348,22 @@ android {
             fbLoginProtocolScheme = "fb"+facebookAppId
         }
 
+        def saml = config.get('SAML')
+        def samlName = ""
+        if (saml?.get('ENABLED')) {
+            samlName = saml.get('NAME')
+            def samlIdpSlug = saml.get('SAML_IDP_SLUG')
+            if (null == samlIdpSlug) {
+                throw new GradleException("You must set SAML_IDP_SLUG if the login with SAML is enabled")
+            }
+        }
+        resValue "string", "saml_name", samlName
+
         manifestPlaceholders = [supportsRtl:"false",
                                 firebaseEnabled: firebaseEnabled?: false,
-                                fcmEnabled: fcmEnabled,
                                 branchKey: branchKey,
                                 facebookAppId: facebookAppId,
-                                fbLoginProtocolScheme: fbLoginProtocolScheme,
-                                sdCardEnabled: config.get('DOWNLOAD_TO_SD_CARD_ENABLED') ?: true]
+                                fbLoginProtocolScheme: fbLoginProtocolScheme]
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -464,6 +443,7 @@ android {
         }
 
         release {
+            manifestPlaceholders = [ supportsRtl:"true"]
             signingConfig signingConfigs.releasekey
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
@@ -487,11 +467,6 @@ android {
          unitTests.all {
              maxHeapSize '1g'
          }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

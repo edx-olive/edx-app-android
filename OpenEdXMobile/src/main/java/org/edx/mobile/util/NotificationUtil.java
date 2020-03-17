@@ -1,12 +1,18 @@
 package org.edx.mobile.util;
 
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.edx.mobile.logger.Logger;
+import org.edx.mobile.notifications.services.NotificationService;
 
 public class NotificationUtil {
     final static Logger logger = new Logger(NotificationUtil.class.getName());
-    public static final String NOTIFICATION_TOPIC_RELEASE = "release_notification_android";
 
     /**
      * Subscribe to the Topic channels that will be used to send Group notifications
@@ -14,7 +20,7 @@ public class NotificationUtil {
     public static void subscribeToTopics(Config config) {
         if (config.areFirebasePushNotificationsEnabled()) {
             FirebaseMessaging.getInstance().subscribeToTopic(
-                NOTIFICATION_TOPIC_RELEASE
+                NotificationService.NOTIFICATION_TOPIC_RELEASE
             );
         }
     }
@@ -25,7 +31,7 @@ public class NotificationUtil {
     public static void unsubscribeFromTopics(Config config) {
         if (config.getFirebaseConfig().isEnabled()) {
             FirebaseMessaging.getInstance().unsubscribeFromTopic(
-                NOTIFICATION_TOPIC_RELEASE
+                NotificationService.NOTIFICATION_TOPIC_RELEASE
             );
         }
     }

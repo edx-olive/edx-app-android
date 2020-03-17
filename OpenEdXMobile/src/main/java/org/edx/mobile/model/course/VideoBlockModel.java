@@ -1,11 +1,9 @@
 package org.edx.mobile.model.course;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.edx.mobile.model.db.DownloadEntry;
 import org.edx.mobile.module.storage.IStorage;
-import org.edx.mobile.util.UrlUtil;
 
 /**
  * common base class for all type of units
@@ -15,14 +13,6 @@ public class VideoBlockModel extends CourseComponent implements HasDownloadEntry
     private DownloadEntry downloadEntry;
     private VideoData data;
     private String downloadUrl;
-    private String videoThumbnail;
-
-    public VideoBlockModel(@NonNull VideoBlockModel other) {
-        super(other);
-        this.downloadEntry = other.downloadEntry;
-        this.data = other.data;
-        this.downloadUrl = other.downloadUrl;
-    }
 
     public VideoBlockModel(BlockModel blockModel, CourseComponent parent){
         super(blockModel,parent);
@@ -31,7 +21,7 @@ public class VideoBlockModel extends CourseComponent implements HasDownloadEntry
 
     @Nullable
     public DownloadEntry getDownloadEntry(IStorage storage) {
-        if (data.encodedVideos.getPreferredVideoInfo() == null) {
+        if (data.encodedVideos.getPreferredVideoInfoForDownloading() == null) {
             return null;
         }
         if ( storage != null ) {
@@ -43,15 +33,6 @@ public class VideoBlockModel extends CourseComponent implements HasDownloadEntry
 
     public void setDownloadUrl(@Nullable String downloadUrl) {
         this.downloadUrl = downloadUrl;
-    }
-
-    @Nullable
-    public String getVideoThumbnail(@Nullable String baseURL) {
-        return UrlUtil.makeAbsolute(videoThumbnail, baseURL);
-    }
-
-    public void setVideoThumbnail(String videoThumbnail) {
-        this.videoThumbnail = videoThumbnail;
     }
 
     @Nullable

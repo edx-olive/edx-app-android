@@ -19,7 +19,6 @@ import com.google.inject.Singleton;
 import com.squareup.phrase.Phrase;
 
 import org.edx.mobile.BuildConfig;
-import org.edx.mobile.core.IEdxEnvironment;
 import org.edx.mobile.logger.Logger;
 
 import java.io.InputStream;
@@ -48,7 +47,7 @@ public class Config {
     private static final String ORGANIZATION_CODE = "ORGANIZATION_CODE";
 
     /* Composite configuration keys */
-    private static final String DISCOVERY = "DISCOVERY";
+    private static final String COURSE_ENROLLMENT = "COURSE_ENROLLMENT";
     private static final String PROGRAM = "PROGRAM";
     private static final String ZERO_RATING = "ZERO_RATING";
     private static final String FACEBOOK = "FACEBOOK";
@@ -60,8 +59,8 @@ public class Config {
     private static final String FIREBASE = "FIREBASE";
     private static final String PUSH_NOTIFICATIONS_FLAG = "PUSH_NOTIFICATIONS";
     private static final String WHITE_LIST_OF_DOMAINS = "WHITE_LIST_OF_DOMAINS";
-    private static final String API_URL_VERSION = "API_URL_VERSION";
-    private static final String YOUTUBE_PLAYER = "YOUTUBE_PLAYER";
+    private static final String YOUTUBE_VIDEO = "YOUTUBE_VIDEO";
+    private static final String SAML = "SAML";
 
     // Features
     private static final String USER_PROFILES_ENABLED = "USER_PROFILES_ENABLED";
@@ -79,7 +78,6 @@ public class Config {
     private static final String COURSE_DATES_ENABLED = "COURSE_DATES_ENABLED";
     private static final String WHATS_NEW_ENABLED = "WHATS_NEW_ENABLED";
     private static final String COURSE_VIDEOS_ENABLED = "COURSE_VIDEOS_ENABLED";
-    private static final String DOWNLOAD_TO_SD_CARD_ENABLED = "DOWNLOAD_TO_SD_CARD_ENABLED";
 
     public static class ZeroRatingConfig {
         @SerializedName("ENABLED")
@@ -104,189 +102,82 @@ public class Config {
         }
     }
 
-    public static class DiscoveryConfig {
-        @SerializedName("COURSE")
-        private CourseDiscoveryConfig courseDiscoveryConfig;
+    public static class EnrollmentConfig {
+        @SerializedName("WEBVIEW")
+        private WebViewConfig mWebViewConfig;
 
-        @SerializedName("PROGRAM")
-        private ProgramDiscoveryConfig programDiscoveryConfig;
+        @SerializedName("TYPE")
+        private String mCourseEnrollmentType;
 
-        @SerializedName("DEGREE")
-        private DegreeDiscoveryConfig degreeDiscoveryConfig;
-
-        public enum DiscoveryType {
+        public enum CourseDiscoveryType {
             WEBVIEW,
             NATIVE
         }
 
-        public CourseDiscoveryConfig getCourseDiscoveryConfig() {
-            return courseDiscoveryConfig;
-        }
-
-        public ProgramDiscoveryConfig getProgramDiscoveryConfig() {
-            return programDiscoveryConfig;
-        }
-
-        public DegreeDiscoveryConfig getDegreeDiscoveryConfig() {
-            return degreeDiscoveryConfig;
-        }
-    }
-
-    public static class CourseDiscoveryConfig {
-        @SerializedName("TYPE")
-        private String typeConfig;
-
-        @SerializedName("WEBVIEW")
-        private WebViewConfig webViewConfig;
-
         @Nullable
-        private DiscoveryConfig.DiscoveryType getDiscoveryType() {
-            if (null == typeConfig) {
+        private CourseDiscoveryType getCourseDiscoveryType() {
+            if (null == mCourseEnrollmentType) {
                 return null;
             }
-            return DiscoveryConfig.DiscoveryType.valueOf(typeConfig.toUpperCase(Locale.US));
+            return CourseDiscoveryType.valueOf(mCourseEnrollmentType.toUpperCase(Locale.US));
         }
 
-        public boolean isDiscoveryEnabled() {
-            return getDiscoveryType() != null;
+        public boolean isCourseDiscoveryEnabled() {
+            return getCourseDiscoveryType() != null;
         }
 
-        public boolean isWebviewDiscoveryEnabled() {
-            return getDiscoveryType() == DiscoveryConfig.DiscoveryType.WEBVIEW;
+        public boolean isWebviewCourseDiscoveryEnabled() {
+            return getCourseDiscoveryType() == CourseDiscoveryType.WEBVIEW;
         }
 
         public WebViewConfig getWebViewConfig() {
-            return webViewConfig;
+            return mWebViewConfig;
         }
 
-        public String getBaseUrl() {
-            return null == webViewConfig ? null : webViewConfig.getBaseUrl();
+        public String getCourseSearchUrl() {
+            return null == mWebViewConfig ? null : mWebViewConfig.getCourseSearchUrl();
         }
 
-        public String getInfoUrlTemplate() {
-            return null == webViewConfig ? null : webViewConfig.getInfoUrlTemplate();
+        public String getCourseInfoUrlTemplate() {
+            return null == mWebViewConfig ? null : mWebViewConfig.getCourseInfoUrlTemplate();
         }
 
-        public boolean isSearchEnabled() {
-            return null != webViewConfig && webViewConfig.isSearchEnabled();
+        public boolean isWebCourseSearchEnabled() {
+            return null != mWebViewConfig && mWebViewConfig.isWebCourseSearchEnabled();
         }
 
-        public boolean isSubjectFilterEnabled() {
-            return null != webViewConfig && webViewConfig.isSubjectFilterEnabled();
-        }
-    }
-
-    public static class ProgramDiscoveryConfig {
-        @SerializedName("TYPE")
-        private String typeConfig;
-
-        @SerializedName("WEBVIEW")
-        private WebViewConfig webViewConfig;
-
-        @Nullable
-        private DiscoveryConfig.DiscoveryType getDiscoveryType() {
-            if (null == typeConfig) {
-                return null;
-            }
-            return DiscoveryConfig.DiscoveryType.valueOf(typeConfig.toUpperCase(Locale.US));
-        }
-
-        public boolean isDiscoveryEnabled(@NonNull IEdxEnvironment environment) {
-            return getDiscoveryType() != null &&
-                    environment.getConfig().getDiscoveryConfig().getCourseDiscoveryConfig() != null &&
-                    environment.getConfig().getDiscoveryConfig().getCourseDiscoveryConfig().isDiscoveryEnabled() &&
-                    environment.getConfig().getDiscoveryConfig().getCourseDiscoveryConfig().isWebviewDiscoveryEnabled()
-                    ;
-        }
-
-        public boolean isWebviewDiscoveryEnabled() {
-            return getDiscoveryType() == DiscoveryConfig.DiscoveryType.WEBVIEW;
-        }
-
-        public WebViewConfig getWebViewConfig() {
-            return webViewConfig;
-        }
-
-        public String getBaseUrl() {
-            return null == webViewConfig ? null : webViewConfig.getBaseUrl();
-        }
-
-        public String getInfoUrlTemplate() {
-            return null == webViewConfig ? null : webViewConfig.getInfoUrlTemplate();
-        }
-
-        public boolean isSearchEnabled() {
-            return null != webViewConfig && webViewConfig.isSearchEnabled();
-        }
-    }
-
-    public static class DegreeDiscoveryConfig {
-        @SerializedName("TYPE")
-        private String typeConfig;
-
-        @SerializedName("WEBVIEW")
-        private WebViewConfig webViewConfig;
-
-        @Nullable
-        private DiscoveryConfig.DiscoveryType getDiscoveryType() {
-            if (null == typeConfig) {
-                return null;
-            }
-            return DiscoveryConfig.DiscoveryType.valueOf(typeConfig.toUpperCase(Locale.US));
-        }
-
-        public boolean isDiscoveryEnabled(@NonNull IEdxEnvironment environment) {
-            return getDiscoveryType() != null &&
-                    environment.getConfig().getDiscoveryConfig().getProgramDiscoveryConfig() != null &&
-                    environment.getConfig().getDiscoveryConfig().getProgramDiscoveryConfig().isDiscoveryEnabled(environment) &&
-                    environment.getConfig().getDiscoveryConfig().getProgramDiscoveryConfig().isWebviewDiscoveryEnabled()
-                    ;
-        }
-
-        public WebViewConfig getWebViewConfig() {
-            return webViewConfig;
-        }
-
-        public String getBaseUrl() {
-            return null == webViewConfig ? null : webViewConfig.getBaseUrl();
-        }
-
-        public String getInfoUrlTemplate() {
-            return null == webViewConfig ? null : webViewConfig.getInfoUrlTemplate();
-        }
-
-        public boolean isSearchEnabled() {
-            return null != webViewConfig && webViewConfig.isSearchEnabled();
+        public boolean isSubjectDiscoveryEnabled() {
+            return null != mWebViewConfig && mWebViewConfig.isSubjectDiscoveryEnabled();
         }
     }
 
     public static class WebViewConfig {
-        @SerializedName("BASE_URL")
-        private String baseUrl;
+        @SerializedName("COURSE_SEARCH_URL")
+        private String mSearchUrl;
 
-        @SerializedName("DETAIL_TEMPLATE")
-        private String detailTemplate;
+        @SerializedName("COURSE_INFO_URL_TEMPLATE")
+        private String mCourseInfoUrlTemplate;
 
-        @SerializedName("SEARCH_ENABLED")
-        private boolean searchEnabled;
+        @SerializedName("SEARCH_BAR_ENABLED")
+        private boolean mSearchBarEnabled;
 
-        @SerializedName("SUBJECT_FILTER_ENABLED")
-        private boolean subjectFilterEnabled;
+        @SerializedName("SUBJECT_DISCOVERY_ENABLED")
+        private boolean subjectDiscovery;
 
-        public String getBaseUrl() {
-            return baseUrl;
+        public String getCourseSearchUrl() {
+            return mSearchUrl;
         }
 
-        public String getInfoUrlTemplate() {
-            return detailTemplate;
+        public String getCourseInfoUrlTemplate() {
+            return mCourseInfoUrlTemplate;
         }
 
-        public boolean isSearchEnabled() {
-            return searchEnabled;
+        public boolean isWebCourseSearchEnabled() {
+            return mSearchBarEnabled;
         }
 
-        public boolean isSubjectFilterEnabled() {
-            return subjectFilterEnabled;
+        public boolean isSubjectDiscoveryEnabled() {
+            return subjectDiscovery;
         }
     }
 
@@ -547,31 +438,18 @@ public class Config {
         @SerializedName("ENABLED")
         private boolean mEnabled;
 
-        @SerializedName("ANALYTICS_SOURCE")
-        private AnalyticsSource mAnalyticsSource;
+        @SerializedName("ANALYTICS_ENABLED")
+        private boolean mAnalyticsEnabled;
 
         @SerializedName("CLOUD_MESSAGING_ENABLED")
         private boolean mCloudMessagingEnabled;
-
-        public enum AnalyticsSource {
-            @SerializedName("segment")
-            SEGMENT,
-            @SerializedName("firebase")
-            FIREBASE,
-            @SerializedName("none")
-            NONE
-        }
 
         public boolean isEnabled() {
             return mEnabled;
         }
 
-        public boolean isAnalyticsSourceSegment() {
-            return mEnabled && mAnalyticsSource == AnalyticsSource.SEGMENT;
-        }
-
-        public boolean isAnalyticsSourceFirebase() {
-            return mEnabled && mAnalyticsSource == AnalyticsSource.FIREBASE;
+        public boolean isAnalyticsEnabled() {
+            return mEnabled && mAnalyticsEnabled;
         }
 
         public boolean areNotificationsEnabled() {
@@ -579,33 +457,51 @@ public class Config {
         }
     }
 
-    public static class ApiUrlVersionConfig {
-        private static final String DEFAULT_API_VERSION = "v1";
-        @SerializedName("BLOCKS")
-        private String blocksApiVersion;
+    public static class EmbeddedYoutubeConfig {
+        @SerializedName("ENABLED")
+        private boolean mEnabled;
 
-        public ApiUrlVersionConfig(@NonNull String blocksApiVersion) {
-            this.blocksApiVersion = blocksApiVersion;
+        @SerializedName("YOUTUBE_API_KEY")
+        private String mYoutubeApiKey;
+
+        public boolean isYoutubeEnabled() {
+            return mEnabled;
         }
 
-        public String getBlocksApiVersion() {
-            return blocksApiVersion != null ? blocksApiVersion : DEFAULT_API_VERSION;
+        public String getYoutubeApiKey() {
+            return mYoutubeApiKey;
         }
     }
 
-    public static class YoutubePlayerConfig {
+    public static class SAMLConfig {
         @SerializedName("ENABLED")
-        private boolean enabled;
+        private boolean mEnabled;
 
-        @SerializedName("API_KEY")
-        private String apiKey;
+        @SerializedName("SAML_IDP_SLUG")
+        private String mSamlIdpSlug;
 
-        public boolean isYoutubePlayerEnabled() {
-            return enabled;
+        @SerializedName("NAME")
+        private String mName;
+
+        public SAMLConfig(boolean mEnabled, String mSamlIdpSlug, String mName) {
+            this.mEnabled = mEnabled;
+            this.mSamlIdpSlug = mSamlIdpSlug;
+            this.mName = mName;
         }
 
-        public String getApiKey() {
-            return apiKey;
+        public SAMLConfig() {
+        }
+
+        public boolean isEnabled() {
+            return mEnabled && !TextUtils.isEmpty(mSamlIdpSlug);
+        }
+
+        public String getSamlIdpSlug() {
+            return mSamlIdpSlug;
+        }
+
+        public String getSamlName() {
+            return mName;
         }
     }
 
@@ -791,18 +687,14 @@ public class Config {
         return getBoolean(COURSE_VIDEOS_ENABLED, true);
     }
 
-    public boolean isDownloadToSDCardEnabled() {
-        return getBoolean(DOWNLOAD_TO_SD_CARD_ENABLED, false);
+    @NonNull
+    public EnrollmentConfig getCourseDiscoveryConfig() {
+        return getObjectOrNewInstance(COURSE_ENROLLMENT, EnrollmentConfig.class);
     }
 
     @NonNull
     public ProgramConfig getProgramConfig() {
         return getObjectOrNewInstance(PROGRAM, ProgramConfig.class);
-    }
-
-        @Nullable
-    public DiscoveryConfig getDiscoveryConfig() {
-        return getObjectOrNewInstance(DISCOVERY, DiscoveryConfig.class);
     }
 
     @NonNull
@@ -851,8 +743,8 @@ public class Config {
     }
 
     @NonNull
-    public ApiUrlVersionConfig getApiUrlVersionConfig() {
-        return getObjectOrNewInstance(API_URL_VERSION, ApiUrlVersionConfig.class);
+    public SAMLConfig getSamlConfig() {
+        return getObjectOrNewInstance(SAML, SAMLConfig.class);
     }
 
     @NonNull
@@ -873,7 +765,7 @@ public class Config {
     }
 
     @NonNull
-    public YoutubePlayerConfig getYoutubePlayerConfig() {
-        return getObjectOrNewInstance(YOUTUBE_PLAYER, YoutubePlayerConfig.class);
+    public EmbeddedYoutubeConfig getEmbeddedYoutubeConfig() {
+        return getObjectOrNewInstance(YOUTUBE_VIDEO, EmbeddedYoutubeConfig.class);
     }
 }

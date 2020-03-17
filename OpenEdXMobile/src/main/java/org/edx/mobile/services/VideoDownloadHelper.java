@@ -154,13 +154,11 @@ public class VideoDownloadHelper {
     }
 
     public void downloadVideo(DownloadEntry downloadEntry, final FragmentActivity activity, final DownloadManagerCallback callback) {
-        if (downloadEntry != null) {
-            List<DownloadEntry> downloadEntries = new ArrayList<>();
-            downloadEntries.add(downloadEntry);
-            startDownload(downloadEntries, activity, callback);
-            analyticsRegistry.trackSingleVideoDownload(downloadEntry.getVideoId(),
-                    downloadEntry.getEnrollmentId(), downloadEntry.getVideoUrl());
-        }
+        List<DownloadEntry> downloadEntries = new ArrayList<>();
+        downloadEntries.add(downloadEntry);
+        startDownload(downloadEntries, activity, callback);
+        analyticsRegistry.trackSingleVideoDownload(downloadEntry.getVideoId(),
+                downloadEntry.getEnrollmentId(), downloadEntry.getVideoUrl());
     }
 
     private void startDownload(List<DownloadEntry> downloadList,

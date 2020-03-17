@@ -101,7 +101,7 @@ public class CourseAnnouncementsActivity extends BaseSingleFragmentActivity {
 
     @Override
     public Fragment getFirstFragment() {
-        CourseAnnouncementsFragment fragment = new CourseAnnouncementsFragment();
+        CourseCombinedInfoFragment fragment = new CourseCombinedInfoFragment();
 
         if (courseData != null) {
             Bundle bundle = new Bundle();

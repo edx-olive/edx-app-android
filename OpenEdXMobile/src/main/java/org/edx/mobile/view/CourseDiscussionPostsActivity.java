@@ -14,6 +14,10 @@ import org.edx.mobile.R;
 import org.edx.mobile.base.BaseSingleFragmentActivity;
 import org.edx.mobile.discussion.DiscussionTopic;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
+import org.edx.mobile.module.analytics.Analytics;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import roboguice.inject.InjectExtra;
 
@@ -35,8 +39,35 @@ public class CourseDiscussionPostsActivity extends BaseSingleFragmentActivity {
     private EnrolledCoursesResponse courseData;
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        String screenName;
+        String actionItem;
+        Map<String, String> values = new HashMap<>();
+        if (searchQuery != null) {
+            screenName = Analytics.Screens.FORUM_SEARCH_THREADS;
+            values.put(Analytics.Keys.SEARCH_STRING, searchQuery);
+            actionItem = searchQuery;
+        } else {
+            screenName = Analytics.Screens.FORUM_VIEW_TOPIC_THREADS;
+            String topicId = discussionTopic.getIdentifier();
+            if (DiscussionTopic.ALL_TOPICS_ID.equals(topicId)) {
+                topicId = actionItem = Analytics.Values.POSTS_ALL;
+            } else if (DiscussionTopic.FOLLOWING_TOPICS_ID.equals(topicId)) {
+                topicId = actionItem = Analytics.Values.POSTS_FOLLOWING;
+            } else {
+                actionItem = discussionTopic.getName();
+            }
+            values.put(Analytics.Keys.TOPIC_ID, topicId);
+        }
+        environment.getAnalyticsRegistry().trackScreenView(screenName, courseData.getCourse().getId(),
+                actionItem, values);
+    }
+
+    @Override
     public Fragment getFirstFragment() {
-        final Fragment fragment;
+        Fragment fragment;
         if (searchQuery != null) {
             fragment = courseDiscussionPostsSearchFragment;
         } else {
@@ -46,8 +77,7 @@ public class CourseDiscussionPostsActivity extends BaseSingleFragmentActivity {
         // TODO: Move argument setting logic to base class
         // Currently RoboGuice doesn't allowing injecting arguments of a Fragment
         if (fragment.getArguments() == null) {
-            final Bundle args = new Bundle();
-            args.putAll(getIntent().getExtras());
+            Bundle args = new Bundle();
             args.putSerializable(Router.EXTRA_COURSE_DATA, courseData);
             args.putBoolean(CourseDiscussionPostsThreadFragment.ARG_DISCUSSION_HAS_TOPIC_NAME,
                     discussionTopic != null);

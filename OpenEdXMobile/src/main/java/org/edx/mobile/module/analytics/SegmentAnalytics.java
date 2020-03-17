@@ -8,11 +8,9 @@ import android.util.Log;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.segment.analytics.Analytics.Builder;
 import com.segment.analytics.Options;
 import com.segment.analytics.Properties;
 import com.segment.analytics.Traits;
-import com.segment.analytics.android.integrations.firebase.FirebaseIntegration;
 
 import org.edx.mobile.R;
 import org.edx.mobile.logger.Logger;
@@ -42,22 +40,18 @@ public class SegmentAnalytics implements Analytics {
         final int flushInterval = context.getResources().getInteger(R.integer.analytics_flush_interval);
 
         // Must be called before any calls to Analytics.with(context)
-        Builder builder = new Builder(context, writeKey)
+        tracker = new com.segment.analytics.Analytics.Builder(context, writeKey)
                 .flushQueueSize(queueSize)
                 .flushInterval(flushInterval, TimeUnit.SECONDS)
-                .logLevel(debugging ? com.segment.analytics.Analytics.LogLevel.VERBOSE : com.segment.analytics.Analytics.LogLevel.NONE);
-        if (config.getFirebaseConfig().isAnalyticsSourceSegment()) {
-            // If Segment & Firebase Analytics are enabled, we'll use Segment's Firebase integration
-            builder = builder.use(FirebaseIntegration.FACTORY);
-        }
-        tracker = builder.build();
+                .logLevel(debugging ? com.segment.analytics.Analytics.LogLevel.VERBOSE : com.segment.analytics.Analytics.LogLevel.NONE)
+                .build();
     }
 
     /**
      * This function is used to send the event to Segment and log the output.
      *
-     * @param eventName       The name of the event.
-     * @param eventProperties The Properties of the event.
+     * @param eventName     The name of the event.
+     * @param eventProperties   The Properties of the event.
      */
     private void trackSegmentEvent(@NonNull String eventName, @NonNull Properties eventProperties) {
         String csv = "Track," + eventName;
@@ -131,42 +125,35 @@ public class SegmentAnalytics implements Analytics {
     /**
      * This function is used to track Video Playing
      *
-     * @param videoId     -  Video Id that is being Played
+     * @param videoId     -   Video Id that is being Played
      * @param currentTime -  Video Playing started at
-     * @param courseId    -  CourseId under which the video is present
-     * @param unitUrl     -  Page Url for that Video
-     * @param playMedium  -  Player Medium {@link Analytics.Values.GOOGLE_CAST}
+     * @param unitUrl     -   Page Url for that Video
+     * @param courseId    -     CourseId under which the video is present
      */
     @Override
     public void trackVideoPlaying(String videoId, Double currentTime,
-                                  String courseId, String unitUrl, String playMedium) {
+                                  String courseId, String unitUrl) {
         SegmentEvent aEvent = getCommonPropertiesWithCurrentTime(currentTime,
                 videoId, Values.VIDEO_PLAYED);
         aEvent.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        if (!TextUtils.isEmpty(playMedium)) {
-            aEvent.data.put(Keys.PLAY_MEDIUM, playMedium);
-        }
+
         trackSegmentEvent(Events.PLAYED_VIDEO, aEvent.properties);
     }
 
     /**
      * This function is used to track Video Pause
      *
-     * @param videoId     -  Video Id that is being Played
+     * @param videoId     -   Video Id that is being Played
      * @param currentTime -  Video Playing started at
      * @param courseId    -  CourseId under which the video is present
-     * @param unitUrl     -  Page Url for that Video
-     * @param playMedium  - Player Medium {@link Analytics.Values.GOOGLE_CAST}
+     * @param unitUrl     -   Page Url for that Video
      */
     @Override
     public void trackVideoPause(String videoId,
-                                Double currentTime, String courseId, String unitUrl, String playMedium) {
+                                Double currentTime, String courseId, String unitUrl) {
         SegmentEvent aEvent = getCommonPropertiesWithCurrentTime(currentTime,
                 videoId, Values.VIDEO_PAUSED);
         aEvent.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        if (!TextUtils.isEmpty(playMedium)) {
-            aEvent.data.put(Keys.PLAY_MEDIUM, playMedium);
-        }
         trackSegmentEvent(Events.PAUSED_VIDEO, aEvent.properties);
     }
 
@@ -239,27 +226,6 @@ public class SegmentAnalytics implements Analytics {
     }
 
     /**
-     * This function is used to track the video playback speed changes
-     *
-     * @param videoId
-     * @param currentTime
-     * @param courseId
-     * @param unitUrl
-     * @param oldSpeed
-     * @param newSpeed
-     */
-    @Override
-    public void trackVideoSpeed(String videoId, Double currentTime, String courseId,
-                                String unitUrl, float oldSpeed, float newSpeed) {
-        SegmentEvent aEvent = getCommonPropertiesWithCurrentTime(currentTime,
-                videoId, Values.VIDEO_PLAYBACK_SPEED_CHANGED);
-        aEvent.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        aEvent.data.putValue(Keys.NEW_SPEED, newSpeed);
-        aEvent.data.putValue(Keys.OLD_SPEED, oldSpeed);
-        trackSegmentEvent(Events.SPEED_CHANGE_VIDEO, aEvent.properties);
-    }
-
-    /**
      * This function is used to Hide Transcript
      *
      * @param videoId
@@ -303,16 +269,6 @@ public class SegmentAnalytics implements Analytics {
         trackSegmentEvent(Events.VIDEO_DOWNLOADED, aEvent.properties);
     }
 
-    @Override
-    public void trackCourseUpgradeSuccess(String blockId, String courseId, String minifiedBlockId) {
-        SegmentEvent aEvent = new SegmentEvent();
-        aEvent.properties.putValue(Keys.NAME, Values.USER_COURSE_UPGRADE_SUCCESS);
-        aEvent.data.putValue(Keys.BLOCK_ID, blockId);
-        aEvent.data.putValue(Keys.COURSE_ID, courseId);
-        //Add category for Google Analytics
-        aEvent.properties = addCategoryToBiEvents(aEvent.properties, Values.CONVERSION, courseId);
-        trackSegmentEvent(Events.COURSE_UPGRADE_SUCCESS, aEvent.properties);
-    }
 
     /**
      * This function is used to track Bulk Download from Subsection
@@ -364,19 +320,16 @@ public class SegmentAnalytics implements Analytics {
      * @param isLandscape -  true / false based on orientation
      * @param courseId
      * @param unitUrl
-     * @param playMedium  - Player Medium {@link Analytics.Values.GOOGLE_CAST}
      * @return A {@link Properties} object populated with analytics-event info
      */
     @Override
     public void trackVideoOrientation(String videoId, Double currentTime,
-                                      boolean isLandscape, String courseId, String unitUrl, String playMedium) {
+                                      boolean isLandscape, String courseId, String unitUrl) {
         SegmentEvent aEvent = getCommonPropertiesWithCurrentTime(currentTime,
                 videoId, Values.FULLSREEN_TOGGLED);
         aEvent.data.putValue(Keys.FULLSCREEN, isLandscape);
         aEvent.setCourseContext(courseId, unitUrl, Values.VIDEOPLAYER);
-        if (!TextUtils.isEmpty(playMedium)) {
-            aEvent.data.put(Keys.PLAY_MEDIUM, playMedium);
-        }
+
         trackSegmentEvent(Events.SCREEN_TOGGLED, aEvent.properties);
     }
 
@@ -602,7 +555,7 @@ public class SegmentAnalytics implements Analytics {
     @Override
     public void trackOpenInBrowser(String blockId, String courseId, boolean isSupported,
                                    String minifiedBlockId) {
-        SegmentEvent aEvent = new SegmentEvent();
+        SegmentEvent aEvent = new SegmentEvent ();
         aEvent.properties.putValue(Keys.NAME, Values.OPEN_IN_BROWSER);
         aEvent.data.putValue(Keys.BLOCK_ID, blockId);
         aEvent.data.putValue(Keys.COURSE_ID, courseId);
@@ -617,7 +570,7 @@ public class SegmentAnalytics implements Analytics {
 
     @Override
     public void trackProfileViewed(@NonNull String username) {
-        final SegmentEvent aEvent = new SegmentEvent();
+        final SegmentEvent aEvent = new SegmentEvent ();
         aEvent.properties.putValue(Keys.NAME, Values.PROFILE_VIEWED);
         aEvent.properties = addCategoryToBiEvents(aEvent.properties,
                 Values.PROFILE, username);
@@ -626,7 +579,7 @@ public class SegmentAnalytics implements Analytics {
 
     @Override
     public void trackProfilePhotoSet(boolean fromCamera) {
-        final SegmentEvent aEvent = new SegmentEvent();
+        final SegmentEvent aEvent = new SegmentEvent ();
         aEvent.properties.putValue(Keys.NAME, Values.PROFILE_PHOTO_SET);
         aEvent.properties = addCategoryToBiEvents(aEvent.properties,
                 Values.PROFILE, fromCamera ? Values.CAMERA : Values.LIBRARY);
@@ -841,36 +794,5 @@ public class SegmentAnalytics implements Analytics {
         aEvent.properties.putValue(Keys.CATEGORY, Values.DISCOVERY);
         aEvent.data.putValue(Keys.SUBJECT_ID, subjectId);
         trackSegmentEvent(Events.SUBJECT_DISCOVERY, aEvent.properties);
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOn() {
-        final SegmentEvent aEvent = new SegmentEvent();
-        aEvent.properties.putValue(Keys.NAME, Values.DOWNLOAD_TO_SD_CARD_SWITCH_ON);
-        trackSegmentEvent(Events.DOWNLOAD_TO_SD_CARD_ON, aEvent.properties);
-    }
-
-    @Override
-    public void trackDownloadToSdCardSwitchOff() {
-        final SegmentEvent aEvent = new SegmentEvent();
-        aEvent.properties.putValue(Keys.NAME, Values.DOWNLOAD_TO_SD_CARD_SWITCH_OFF);
-        trackSegmentEvent(Events.DOWNLOAD_TO_SD_CARD_OFF, aEvent.properties);
-    }
-
-    @Override
-    public void trackExperimentParams(String experimentName, Map<String, String> values) {
-        final SegmentEvent aEvent = new SegmentEvent();
-        aEvent.data.putAll(values);
-        trackSegmentEvent(experimentName, aEvent.properties);
-    }
-
-    @Override
-    public void trackCastDeviceConnectionChanged(@NonNull String eventName, @NonNull String connectionState, @NonNull String playMedium) {
-        final SegmentEvent aEvent = new SegmentEvent();
-        aEvent.properties.putValue(Keys.NAME, connectionState);
-        if (!TextUtils.isEmpty(playMedium)) {
-            aEvent.data.put(Keys.PLAY_MEDIUM, playMedium);
-        }
-        trackSegmentEvent(eventName, aEvent.properties);
     }
 }

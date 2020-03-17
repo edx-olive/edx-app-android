@@ -1,15 +1,12 @@
 package org.edx.mobile.util;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 
-import org.edx.mobile.R;
 import org.edx.mobile.core.IEdxEnvironment;
 import org.edx.mobile.logger.Logger;
 import org.edx.mobile.module.analytics.AnalyticsRegistry;
@@ -56,7 +53,7 @@ public class BrowserUtil {
         if (NetworkUtil.isConnectedMobile(activity) && NetworkUtil.isOnZeroRatedNetwork(activity, environment.getConfig())) {
 
             // check if this URL is a white-listed URL, anything outside the white-list is EXTERNAL LINK
-            if (ConfigUtil.Companion.isWhiteListedURL(url, environment.getConfig())) {
+            if (ConfigUtil.isWhiteListedURL(url, environment.getConfig())) {
                 // this is white-listed URL
                 logger.debug(String.format("opening white-listed URL: %s", url));
                 openInBrowser(activity, url);
@@ -90,17 +87,10 @@ public class BrowserUtil {
         intent.addCategory(Intent.CATEGORY_BROWSABLE);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setData(Uri.parse(url));
-        try {
-            context.startActivity(intent);
-            AnalyticsRegistry analyticsRegistry = environment.getAnalyticsRegistry();
-            analyticsRegistry.trackBrowserLaunched(url);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(context, R.string.cannot_open_url, Toast.LENGTH_SHORT).show();
+        context.startActivity(intent);
 
-            // Send non-fatal exception
-            logger.error(new Exception(String.format("No activity found (browser cannot handle request) for this url: %s, error:\n", url)
-                    + e.getMessage()), true);
-        }
+        AnalyticsRegistry analyticsRegistry = environment.getAnalyticsRegistry();
+        analyticsRegistry.trackBrowserLaunched(url);
     }
 
     public static boolean isUrlOfHost(String url, String host) {

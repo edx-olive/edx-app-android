@@ -8,7 +8,7 @@
               "options" : {
                 "values" : [
                             { "name" : "Perfil Completo", "value" : "all_users" },
-                            { "name" : "Perfil Limitado",  "value" : "private" }
+                            { "name" : "Perfil Limitado",  "value" : "privado" }
                  ]
               },
               "instructions" : "Un perfil limitado comunica solo tu nombre de usuario y tu foto.  ",
@@ -20,7 +20,7 @@
               "type" : "select",
               "options" : {
                 "range_min" : 1896,
-                "range_max" : 2019,
+                "range_max" : 2015,
                 "allows_none" : true,
                 "none_label" : "Sin año de nacimiento"
               },
@@ -28,7 +28,7 @@
               "sub_instructions" : "Esto no sera desplegado en público"
     },
     {
-              "name" : "country",
+              "name" : "país",
               "label" : "Ubicación",
               "type" : "select",
               "data_type" : "country",

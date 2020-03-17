@@ -12,16 +12,14 @@ import org.edx.mobile.services.CourseManager;
 import roboguice.RoboGuice;
 
 public class CourseOutlineAsyncLoader extends AsyncTaskLoader<AsyncTaskResult<CourseComponent>> {
-    private final String blocksApiVersion;
     private final String courseId;
     private AsyncTaskResult<CourseComponent> data;
     @Inject
     private CourseManager courseManager;
 
-    public CourseOutlineAsyncLoader(@NonNull Context context, @NonNull String blocksApiVersion, @NonNull String courseId) {
+    public CourseOutlineAsyncLoader(@NonNull Context context, @NonNull String courseId) {
         super(context);
         RoboGuice.injectMembers(context, this);
-        this.blocksApiVersion = blocksApiVersion;
         this.courseId = courseId;
     }
 
@@ -48,7 +46,7 @@ public class CourseOutlineAsyncLoader extends AsyncTaskLoader<AsyncTaskResult<Co
     public AsyncTaskResult<CourseComponent> loadInBackground() {
         final AsyncTaskResult<CourseComponent> result = new AsyncTaskResult<>();
         // Obtain course data from persistable cache
-        result.setResult(courseManager.getCourseDataFromPersistableCache(blocksApiVersion, courseId));
+        result.setResult(courseManager.getCourseDataFromPersistableCache(courseId));
         return result;
     }
 

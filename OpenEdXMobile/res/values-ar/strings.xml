@@ -23,18 +23,13 @@
   <string name="you_are_now_enrolled">أنت الآن مسجِّل في هذا المساق</string>
   <!--Error message shown when dashboard cannot be shown from course detail view-->
   <string name="cannot_show_dashboard">تعذّر عرض لوحة المعلومات</string>
-  <!--Error message shown when browser cannot handle request for given web url-->
   <!--Subjects Discovery-->
   <!--Label for browsing courses by a subject-->
-  <string name="browse_by_subject" tools:ignore="MissingTranslation">استكشاف بحسب الموضوع</string>
+  <string name="browse_by_subject">استكشاف بحسب الموضوع</string>
   <!--Button's Label for viewing all subjects-->
-  <string name="view_all_subjects" tools:ignore="MissingTranslation">استعراض كافة المواضيع</string>
+  <string name="view_all_subjects">استعراض كافة المواضيع</string>
   <!--Label for searching subjects-->
-  <string name="search_subjects" tools:ignore="MissingTranslation">موضوع البحث</string>
-  <!--Google Cast-->
-  <!--Description of a button that will cast/un-cast the app to a remote device-->
-  <!--Google cast Introduction title-->
-  <!--Text to describe that video is casting on the remote device-->
+  <string name="search_subjects">موضوع البحث</string>
   <!--Course Sharing-->
   <!--Description of button that will open the share course menu-->
   <string name="share_course_button">مشاركة المُساق</string>
@@ -45,10 +40,6 @@
   <string name="settings_wifi_top">التحميل من خلال الـ Wi-Fi فقط</string>
   <!--Label explaining what wifi only means in detail-->
   <string name="settings_wifi_bottom">تحميل المواد والبيانات عندما يكون الجهاز متصلاً بالـ Wi-Fi فقط.</string>
-  <!--Label for the Download to sd-card setting-->
-  <string name="settings_download_to_sdcard_title" tools:ignore="MissingTranslation">تحميل الفيديو إلى كرت الذاكرة</string>
-  <!--Label explaining the download location setting in detail-->
-  <string name="settings_download_to_sdcard_subtitle" tools:ignore="MissingTranslation">سيتم تحميل الفيديوهات إلى كرت الذاكرة في حال التمكن من ذلك</string>
   <!--Certificate Page-->
   <!--Description of button that will open the certificate sharing menu-->
   <string name="share_certificate_button">مشاركة شهادتك</string>
@@ -100,23 +91,25 @@
   <!--Content description for edit profile button-->
   <string name="open_profile_button">الدخول إلى صفحتك الشخصية</string>
   <!--Title of user's course list screen-->
-  <string name="label_my_courses">المساقات</string>
+  <string name="label_my_courses">مساقاتي</string>
   <!--Title of user's program list screen-->
   <string name="label_my_programs" tools:ignore="MissingTranslation">البرامج</string>
   <!--Title of native Find Courses Screen-->
   <string name="label_find_courses">استكشف المساقات</string>
   <!--Title of webview based Find Courses Screen-->
   <string name="label_discover">إستكشف</string>
+   <!-- Title of Find Courses tab on Main Dashboard screen -->
+  <string name="label_discovery">القائمة</string> 
   <!--Title of Degrees tab on Discovery screen-->
   <!--Title of Find Courses tab on Main Dashboard screen-->
   <!--Button allowing users to send an email for feedback-->
-  <string name="label_submit_feedback">أرسل ملاحظاتك</string>
+  <string name="label_submit_feedback">للتواصل معنا</string>
   <!--Toggle switch on state label-->
   <string name="toggle_turn_on">تشغيل</string>
   <!--Toggle switch off state label-->
   <string name="toggle_turn_off">إطفاء</string>
   <!--Logout button label-->
-  <string name="logout">تسجيل الخروج</string>
+  <string name="logout">الخروج</string>
   <!--Settings screen title-->
   <string name="settings_txt">الإعدادات</string>
   <!--Settings screen version-->
@@ -154,7 +147,7 @@
   <!--Alert dialog content for users with zero rated data-->
   <string name="leaving_app_data_message">إذا غادرت التطبيق، فلن تعود تتصفح محتويات {platform_name} المجانية. ربما يتم تطبيق رسوم البيانات.</string>
   <!--Title of agreement users must accept to use the app-->
-  <string name="end_user_title" tools:ignore="MissingTranslation">اتفاقية ترخيص للمستخدم</string>
+  <string name="end_user_title">اتفاقية ترخيص للمستخدم</string>
   <!--Title of privacy policy users must accept to use the app-->
   <!--Title of terms of service & honor code users must accept to use the app-->
   <string name="terms_of_service_title">شروط الخدمة</string>
@@ -194,7 +187,7 @@
   <!--Label indicating new course content has been downloaded-->
   <string name="new_course_content">محتويات المساق الجديد</string>
   <!--Label for date when course starts-->
-  <string name="label_starting">يبدأ في {date}</string>
+  <string name="label_starting">يبدأ {date}</string>
   <!--Label for course that has ended-->
   <string name="label_ended">انتهى في {date}</string>
   <!--Label for date when course is ending-->
@@ -225,17 +218,14 @@
   <!--Title of the screen where user can delete videos-->
   <string name="delete_videos_title">حذف مقاطع الفيديو</string>
   <!--Label for a course item's due date for same day-->
-  <string name="due_date_today">مستحق اليوم في {due_date}</string>
+  <string name="due_date_today">مستحق اليوم في {Due_date}</string>
   <!--Label for a course item's due date-->
-  <string name="due_date_past_future">مستحق في {due_date}</string>
-  <!--Upgrade banner's description which appears on course outline screen.-->
-  <!--Title upgrade to verified today course outline footer-->
-  <!--Title of place order for course upgrade screen-->
+  <string name="due_date_past_future">مستحق في {Due_date}</string>
   <!--Discussion Topics-->
   <!--Label for the discussion topics page-->
   <string name="discussion_topics_title">مواضيع النقاش</string>
   <!--Hint displayed in search view for discussion posts-->
-  <string name="topics_search">ابحث في جميع المشاركات</string>
+  <string name="topics_search">أبحث في جميع النقاشات</string>
   <!--Discussion Posts Fragment-->
   <!--Title for discussion post search results-->
   <string name="discussion_posts_search_title">نتائج البحث</string>
@@ -246,7 +236,7 @@
   <!--Label for creating a new comment-->
   <!--Discussion posts filter options-->
   <!--Discussion posts filter for all posts-->
-  <string name="discussion_posts_filter_all_posts">جميع المشاركات</string>
+  <string name="discussion_posts_filter_all_posts">جميع النقاشات</string>
   <!--Discussion posts filter for unread posts-->
   <string name="discussion_posts_filter_unread_posts">غير مقروء</string>
   <!--Discussion posts filter for unanswered posts-->
@@ -255,7 +245,7 @@
   <!--Discussion posts sort by recent activity-->
   <string name="discussion_posts_sort_recent_activity">الأنشطة الأخيرة</string>
   <!--Discussion posts sort by most activity-->
-  <string name="discussion_posts_sort_most_activity" tools:ignore="MissingTranslation">مُعظم الأنشطة</string>
+  <string name="discussion_posts_sort_most_activity">مُعظم الأنشطة</string>
   <!--Discussion posts sort by most votes-->
   <string name="discussion_posts_sort_most_votes">مُعظم الأصوات</string>
   <!--Label for the visibility of a discussion post that is only visible to cohort-->
@@ -348,9 +338,9 @@
   <!--Label for selected topic when creating a post-->
   <string name="discussion_add_post_topic_selection">الموضوع: {topic}</string>
   <!--Add post button title in adding a new discussion-->
-  <string name="discussion_add_post_button_label" tools:ignore="MissingTranslation">انشر نقاشًا</string>
+  <string name="discussion_add_post_button_label">انشر نقاشًا</string>
   <!--Add post button description for accessibility in adding a new discussion-->
-  <string name="discussion_add_post_button_description" tools:ignore="MissingTranslation">زر نشر نقاش</string>
+  <string name="discussion_add_post_button_description">زر نشر نقاش</string>
   <!--Add post button title in adding a new post-->
   <string name="discussion_add_question_button_label">اطرح سؤال</string>
   <!--Add post button content description for accessibility in adding a new post-->
@@ -434,8 +424,6 @@
   <!--Player Settings-->
   <!--Label for closed captions in video player-->
   <string name="lbl_closed_caption">العناوين الفرعية مغلقة</string>
-  <!--Label for video playback speed in video player-->
-  <string name="lbl_video_speed" tools:ignore="MissingTranslation">سرعة الفيديو</string>
   <!--Label for None captions selected-->
   <!--Accessibility Label for Video Player-->
   <string name="video_player">مشغل الفيديو</string>
@@ -473,8 +461,6 @@
   <string name="email_client_not_present">لم يتم العثور على تطبيقات بريد إلكتروني لديك</string>
   <!--Search for a course prompt-->
   <string name="search_for_courses">البحث عن مساقات</string>
-  <!--Search for a program prompt-->
-  <string name="search_for_programs" tools:ignore="MissingTranslation">البحث عن برامج</string>
   <!--Search for a degree prompt-->
   <!--Landing Activity text-->
   <!--Prompt leading user to sign in screen-->
@@ -543,15 +529,15 @@
   <!--Placeholder title for course content with no title-->
   <string name="untitled_block">دون عنوان</string>
   <!--Title for default channel notifications-->
-  <string name="default_notification_channel_title" tools:ignore="MissingTranslation">الإشعارات العامة</string>
+  <string name="default_notification_channel_title">الإشعارات العامة</string>
   <!--Discussion/Forum-->
   <string name="forum_no_results_for_search_query">تعذّر إيجاد نتائج للاستعلام \"{search_query}\". يُرجى إعادة المحاولة باستخدام عبارة أخرى أو اختر فئة نقاش لاستعراضها.</string>
   <string name="forum_no_results_for_all_posts">لا توجد مشاركات تخص نقاش المساق هذا.</string>
   <string name="forum_no_results_for_following">لم تقم بمتابعة أي نقاشات بعد.</string>
   <string name="forum_no_results_for_filtered_following">نتائج المرشح لا تتضمن أي منشورات متابعة.</string>
   <string name="forum_no_results_in_category">لا توجد مشاركات في فئة النقاش هذه.</string>
-  <string name="forum_no_results_with_filter" tools:ignore="MissingTranslation">جرّب إزالة مرشّح مشاركاتك.</string>
-  <string name="forum_post_i_am_following">المشاركات التي أتابعها</string>
+  <string name="forum_no_results_with_filter">جرّب إزالة مرشّح مشاركاتك.</string>
+  <string name="forum_post_i_am_following">النقاشات التي أتابعها</string>
   <string name="forum_follow">تابع</string>
   <string name="forum_unfollow">إلغاء المتابعة</string>
   <!--User Profiles-->
@@ -616,7 +602,7 @@
   <!--Button that will initiate sharing one of a user's accomplishments-->
   <string name="share_accomplishment_button">شارك إنجازك</string>
   <!--Text that pre-populates your post/email/SMS when sharing certificate-->
-  <string name="share_accomplishment_message">لقد نلت للتو وساماً من منصّة {platform_name}! أنظر إليه: {badge_url}</string>
+  <string name="share_accomplishment_message">لقد نلت للتو وساماً من منصّة {platform_name}! أنظر إليه: {certificate_url}</string>
   <!--Question on the app rating dialog-->
   <string name="rating_dialog_message">كيف تقييم التطبيق؟</string>
   <!--Dialog title for positive app review-->
@@ -628,9 +614,11 @@
   <!--Dialog message for negative app review-->
   <string name="feedback_dialog_message">ساعدنا لنتحسن!</string>
   <!--accessibility label for rating bar-->
-  <string name="rating_bar" tools:ignore="MissingTranslation">التحكم بالتقييم</string>
+  <string name="rating_bar">التحكم بالتقييم</string>
   <!--accessibility label for rating selection on rating bar-->
   <string name="rating_bar_selection">{rating} من {num_of_stars}</string>
   <!--Title of the Whats New screen e.g. Version 2.8.1 New Features-->
   <string name="whats_new_title">الإصدار {version_number} الميزات الجديدة</string>
+  <string name="view_downloads">انقر نقرًا مزدوجًا لعرض التنزيلات الحالية.</string>
+  <string name="lbl_cc_cancel">لا شيء</string>  
 </resources>

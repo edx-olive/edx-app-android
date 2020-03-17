@@ -11,7 +11,9 @@ import org.edx.mobile.model.api.AnnouncementsModel;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
 import org.edx.mobile.model.api.HandoutModel;
 import org.edx.mobile.model.api.ResetPasswordResponse;
+import org.edx.mobile.model.api.SectionEntry;
 import org.edx.mobile.model.api.SyncLastAccessedSubsectionResponse;
+import org.edx.mobile.model.api.VideoResponseModel;
 import org.edx.mobile.model.course.BlockPath;
 import org.edx.mobile.model.course.BlockType;
 import org.edx.mobile.model.course.CourseComponent;
@@ -22,6 +24,7 @@ import org.edx.mobile.model.course.HasDownloadEntry;
 import org.edx.mobile.model.course.IBlock;
 import org.edx.mobile.model.course.VideoBlockModel;
 import org.edx.mobile.model.course.VideoData;
+import org.edx.mobile.module.registration.model.RegistrationDescription;
 import org.edx.mobile.test.util.MockDataUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,9 +32,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.Request;
 
@@ -64,6 +71,34 @@ public class ApiTests extends HttpBaseTestCase {
         super.inject(injector);
         courseAPI = injector.getInstance(CourseAPI.class);
         courseService = injector.getInstance(CourseService.class);
+    }
+
+    // TODO: Debug and fix test failure
+    @Ignore
+    @Test
+    public void testSyncLastSubsection() throws Exception {
+        login();
+
+        EnrolledCoursesResponse e = executeStrict(courseAPI.getEnrolledCourses()).get(0);
+        Map<String, SectionEntry> map = courseAPI.getCourseHierarchy(e.getCourse().getId());
+        Entry<String, SectionEntry> entry = map.entrySet().iterator().next();
+        Entry<String, ArrayList<VideoResponseModel>> subsection = entry.getValue().sections.entrySet().iterator().next();
+
+        String courseId = e.getCourse().getId();
+        String lastVisitedModuleId = subsection.getValue().get(0).getSection().getId();
+
+        assertNotNull(courseId);
+        assertNotNull(lastVisitedModuleId);
+
+        print(String.format("course= %s ; sub-section= %s", courseId, lastVisitedModuleId));
+
+        // TODO: lastVisitedModuleId must be section.id (id is now available)
+
+
+        SyncLastAccessedSubsectionResponse model = executeStrict(
+                courseAPI.syncLastAccessedSubsection(courseId, lastVisitedModuleId));
+        assertNotNull(model);
+        print("sync returned: " + model.last_visited_module_id);
     }
 
     // TODO: Debug and fix test failure
@@ -128,6 +163,30 @@ public class ApiTests extends HttpBaseTestCase {
         assertTrue(subscription_id != null);
     }
 
+    // TODO: Debug and fix test failure
+    @Ignore
+    @Test
+    public void testCourseStructure() throws Exception {
+        login();
+
+        // get a course id for this test
+        List<EnrolledCoursesResponse> courses = executeStrict(courseAPI.getEnrolledCourses());
+        assertTrue("Must have enrolled to at least one course",
+                courses != null && courses.size() > 0);
+        String courseId = courses.get(0).getCourse().getId();
+
+        Map<String, SectionEntry> chapters = courseAPI.getCourseHierarchy(courseId);
+        for (Entry<String, SectionEntry> entry : chapters.entrySet()) {
+            print("---------------" + entry.getKey() + "---------------");
+            for (Entry<String, ArrayList<VideoResponseModel>> se : entry.getValue().sections.entrySet()) {
+                print("------------" + se.getKey() + "------------");
+                for (VideoResponseModel v : se.getValue()) {
+                    print(v.getSummary().getDisplayName());
+                }
+            }
+        }
+    }
+
     @Test
     @Override
     public void login() throws Exception {
@@ -180,8 +239,7 @@ public class ApiTests extends HttpBaseTestCase {
         // General overall testing of CourseComponent API without recursion
         EnrolledCoursesResponse e = executeStrict(courseAPI.getEnrolledCourses()).get(0);
         final String courseId = e.getCourse().getId();
-        final CourseStructureV1Model model = executeStrict(courseAPI.getCourseStructure(
-                config.getApiUrlVersionConfig().getBlocksApiVersion(), courseId));
+        final CourseStructureV1Model model = executeStrict(courseAPI.getCourseStructure(courseId));
         final CourseComponent courseComponent = (CourseComponent) CourseAPI.normalizeCourseStructure(model, courseId);
         assertNotNull(courseComponent);
         assertNotNull(courseComponent.getRoot());

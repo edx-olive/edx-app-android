@@ -43,6 +43,21 @@
         <item name="android:paddingBottom">14dp</item>
     </style>
 
+    <!-- EditText theme -->
+    <style name="edit_text_style" parent="@android:style/Widget.DeviceDefault.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:maxWidth">300dp</item>
+        <item name="android:textColor">@color/grey_text</item>
+        <item name="android:background">@drawable/edit_bg_selector</item>
+        <item name="android:gravity" tools:targetApi="17">left|start|center_vertical</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:textColorHint">@color/hint_grey_text</item>
+    </style>
+
     <style name="flying_message">
         <item name="android:gravity">center</item>
         <item name="android:paddingLeft">15dp</item>
@@ -57,8 +72,8 @@
     </style>
 
     <style name="content_unavailable_layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:layout_centerInParent">true</item>
         <item name="android:gravity">center</item>
@@ -169,6 +184,20 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <!-- TextArea theme -->
+    <style name="text_area_style" parent="@android:style/Widget.DeviceDefault.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:maxWidth">300dp</item>
+        <item name="android:maxHeight">80dp</item>
+        <item name="android:textColor">@color/grey_text</item>
+        <item name="android:background">@drawable/edit_bg_selector</item>
+        <item name="android:gravity" tools:targetApi="17">left|start|top</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
     <!-- Registration Error Message below fields-->
     <style name="registration_error_message" parent="@android:style/Widget.DeviceDefault.TextView">
         <item name="android:layout_width">match_parent</item>
@@ -222,11 +251,6 @@
 
     <style name="discussion_responses_small_text" parent="discussion_regular_text">
         <item name="android:textColor">@color/edx_brand_gray_base</item>
-    </style>
-
-    <style name="discussion_responses_action_bar_small_text" parent="discussion_responses_small_text">
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
     </style>
 
 </resources>

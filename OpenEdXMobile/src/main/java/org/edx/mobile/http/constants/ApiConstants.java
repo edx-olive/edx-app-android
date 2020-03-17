@@ -17,6 +17,12 @@ public class ApiConstants {
 
     public static final String URL_MY_USER_INFO ="/api/mobile/v0.5/my_user_info";
 
+    public static final String URL_COURSE_ENROLLMENTS =
+        "/api/mobile/v0.5/users/{username}/course_enrollments/?format=json";
+
+    public static final String URL_VIDEO_OUTLINE =
+        "/api/mobile/v0.5/video_outlines/courses/{courseId}";
+
     public static final String URL_ACCESS_TOKEN = "/oauth2/access_token/";
 
     public static final String URL_PASSWORD_RESET = "/password_reset/";
@@ -38,6 +44,8 @@ public class ApiConstants {
     public static final String TOKEN_TYPE_ACCESS = "access_token";
 
     public static final String TOKEN_TYPE_REFRESH = "refresh_token";
+
+    public static final String SAML_PROVIDER_URL = "/auth/login/tpa-saml/?auth_entry={authEntry}&idp={idpSlug}";
 
     @StringDef({TOKEN_TYPE_ACCESS, TOKEN_TYPE_REFRESH})
     @Retention(RetentionPolicy.SOURCE)

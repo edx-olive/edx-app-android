@@ -2,13 +2,13 @@
     "fields":[
     {
               "name" : "account_privacy",
-              "label" : "يمكن للطلاب الآخرين رؤية:",
+              "label" : "يمكن لباقي الطلاب أن يروا بياناتي :",
               "type" : "switch",
               "data_type" : "boolean",
               "options" : {
                 "values" : [
-                            { "name" : "الملف الشخصي الكامل", "value" : "all_users" },
-                            { "name" : "الملف الشخصي المحدود",  "value" : "private" }
+                            { "name" : "بشكل كامل", "value" : "all_users" },
+                            { "name" : "بشكل محدود",  "value" : "private" }
                  ]
               },
               "instructions" : "الملف الشخصي المحدود يشارك فقط اسم المستخدم وصورة الملف الشخصي.",
@@ -16,11 +16,11 @@
     },
     {
               "name" : "year_of_birth",
-              "label" : "سنة الميلاد",
+              "label" : "سنة الولادة",
               "type" : "select",
               "options" : {
                 "range_min" : 1896,
-                "range_max" : 2019,
+                "range_max" : 2015,
                 "allows_none" : true,
                 "none_label" : "لا توجد سنة الولادة"
               },
@@ -29,7 +29,7 @@
     },
     {
               "name" : "country",
-              "label" : "موقعك",
+              "label" : "الدولة",
               "type" : "select",
               "data_type" : "country",
               "options" : {
@@ -40,7 +40,7 @@
     },
     {
               "name" : "language_proficiencies",
-              "label" : "اللغة الأساسية",
+              "label" : "اللغة الرئيسية",
               "type" : "select",
               "data_type" : "language",
               "options" : {
@@ -51,9 +51,9 @@
     },
     {
               "name" : "bio",
-              "label" : "عنّي",
+              "label" : "تفاصيل شخصية",
               "type" : "textarea",
-              "placeholder" : "اود أن اتعلم..."
+              "placeholder" : "أنا أُودّ التعلّم..."
     }
     ]
 }

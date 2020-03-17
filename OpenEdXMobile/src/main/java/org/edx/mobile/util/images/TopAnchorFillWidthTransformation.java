@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
@@ -59,7 +60,9 @@ public class TopAnchorFillWidthTransformation extends BitmapTransformation {
         Bitmap newBitmap = Bitmap.createBitmap(
                 outWidth, outHeight, toTransform.getConfig());
         newBitmap.setDensity(toTransform.getDensity());
-        newBitmap.setPremultiplied(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            newBitmap.setPremultiplied(true);
+        }
         Canvas canvas = new Canvas(newBitmap);
         // It looks like Canvas has black color by default, and
         // there doesn't seem to be any simple way to set it as

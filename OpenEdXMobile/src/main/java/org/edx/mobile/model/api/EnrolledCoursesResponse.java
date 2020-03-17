@@ -7,7 +7,6 @@ import org.edx.mobile.interfaces.SectionItemInterface;
 @SuppressWarnings("serial")
 public class EnrolledCoursesResponse implements SectionItemInterface {
 
-    private String auditAccessExpires;
     private String created;
     private String mode;
     private boolean is_active;
@@ -19,14 +18,6 @@ public class EnrolledCoursesResponse implements SectionItemInterface {
     // derived fields (doesn't come in server response)
     public int videoCount;
     public long size;
-
-    public String getAuditAccessExpires() {
-        return auditAccessExpires;
-    }
-
-    public void setAuditAccessExpires(String auditAccessExpires) {
-        this.auditAccessExpires = auditAccessExpires;
-    }
 
     public String getCreated() {
         return created;

@@ -26,6 +26,5 @@ public class EdxWebView extends WebView {
                         BuildConfig.APPLICATION_ID + "/" +
                         BuildConfig.VERSION_NAME
         );
-        setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 }

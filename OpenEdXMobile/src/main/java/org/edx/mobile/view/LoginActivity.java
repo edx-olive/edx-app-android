@@ -19,8 +19,6 @@ import org.edx.mobile.R;
 import org.edx.mobile.authentication.AuthResponse;
 import org.edx.mobile.authentication.LoginTask;
 import org.edx.mobile.databinding.ActivityLoginBinding;
-import org.edx.mobile.deeplink.DeepLink;
-import org.edx.mobile.deeplink.DeepLinkManager;
 import org.edx.mobile.exception.LoginErrorMessage;
 import org.edx.mobile.exception.LoginException;
 import org.edx.mobile.http.HttpStatus;
@@ -50,16 +48,8 @@ public class LoginActivity
     LoginPrefs loginPrefs;
 
     @NonNull
-    public static Intent newIntent(@Nullable DeepLink deepLink) {
-        final Intent intent = IntentFactory.newIntentForComponent(LoginActivity.class);
-        intent.putExtra(Router.EXTRA_DEEP_LINK, deepLink);
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        return intent;
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        this.setIntent(intent);
+    public static Intent newIntent() {
+        return IntentFactory.newIntentForComponent(LoginActivity.class);
     }
 
     @NonNull
@@ -85,6 +75,15 @@ public class LoginActivity
         activityLoginBinding.socialAuth.googleButton.getRoot().setOnClickListener(
                 socialLoginDelegate.createSocialButtonClickHandler(
                         SocialFactory.SOCIAL_SOURCE_TYPE.TYPE_GOOGLE));
+        activityLoginBinding.samlLogin.samlButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //redirect to SAML webview activity
+                Intent intent = SamlWebViewActivity.newIntent();
+                intent.putExtra("AUTH_ENTRY", "login");
+                startActivity(intent);
+            }
+        });
 
         activityLoginBinding.loginButtonLayout.setOnClickListener(new OnClickListener() {
             @Override
@@ -138,15 +137,22 @@ public class LoginActivity
             }
 
             @Override
-            public void setSocialLoginButtons(boolean googleEnabled, boolean facebookEnabled) {
-                if (!facebookEnabled && !googleEnabled) {
+            public void setSocialLoginButtons(boolean googleEnabled, boolean facebookEnabled, boolean samlEnabled) {
+                if (!facebookEnabled && !googleEnabled && !samlEnabled) {
                     activityLoginBinding.panelLoginSocial.setVisibility(View.GONE);
-                } else if (!facebookEnabled) {
-                    activityLoginBinding.socialAuth.facebookButton.getRoot().setVisibility(View.GONE);
-                } else if (!googleEnabled) {
-                    activityLoginBinding.socialAuth.googleButton.getRoot().setVisibility(View.GONE);
+                } else {
+                    if (!facebookEnabled) {
+                        activityLoginBinding.socialAuth.facebookButton.getRoot().setVisibility(View.GONE);
+                    }
+                    if (!googleEnabled) {
+                        activityLoginBinding.socialAuth.googleButton.getRoot().setVisibility(View.GONE);
+                    }
+                    if (!samlEnabled) {
+                        activityLoginBinding.samlLogin.samlButton.setVisibility(View.GONE);
+                    }
                 }
             }
+
         };
     }
 
@@ -289,11 +295,6 @@ public class LoginActivity
     public void onUserLoginSuccess(ProfileModel profile) {
         setResult(RESULT_OK);
         finish();
-        final DeepLink deepLink = getIntent().getParcelableExtra(Router.EXTRA_DEEP_LINK);
-        if (deepLink != null) {
-            DeepLinkManager.onDeepLinkReceived(this, deepLink);
-            return;
-        }
         if (!environment.getConfig().isRegistrationEnabled()) {
             environment.getRouter().showMainDashboard(this);
         }
@@ -340,6 +341,8 @@ public class LoginActivity
 
         activityLoginBinding.socialAuth.facebookButton.getRoot().setClickable(enable);
         activityLoginBinding.socialAuth.googleButton.getRoot().setClickable(enable);
+        activityLoginBinding.samlLogin.samlButton.setClickable(enable);
+
 
         activityLoginBinding.emailEt.setEnabled(enable);
         activityLoginBinding.passwordEt.setEnabled(enable);

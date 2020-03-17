@@ -11,8 +11,10 @@ import com.google.inject.Inject;
 import org.edx.mobile.authentication.LoginService;
 import org.edx.mobile.event.SessionIdRefreshEvent;
 import org.edx.mobile.logger.Logger;
+import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.util.Config;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import de.greenrobot.event.EventBus;
@@ -32,10 +34,6 @@ public class EdxCookieManager {
     // they'll be requeried on API levels lesser than Marshmallow (which
     // provides an error callback with the HTTP error code) prior to usage.
     private static final long FRESHNESS_INTERVAL = TimeUnit.HOURS.toMillis(1);
-    /**
-     * The cookie to set for the course upsell revenue workflow to work on mobile end.
-     */
-    private static final String REV_934_COOKIE = "REV_934=mobile; expires=Tue, 31 Dec 2021 12:00:20 GMT; domain=.edx.org;";
 
     private long authSessionCookieExpiration = -1;
 
@@ -50,6 +48,9 @@ public class EdxCookieManager {
     private LoginService loginService;
 
     private Call<RequestBody> loginCall;
+
+    @Inject
+    private LoginPrefs loginPrefs;
 
     public static synchronized EdxCookieManager getSharedInstance(@NonNull final Context context) {
         if ( instance == null ) {
@@ -69,7 +70,16 @@ public class EdxCookieManager {
     }
 
     public synchronized  void tryToRefreshSessionCookie( ){
-        if (loginCall == null || loginCall.isCanceled()) {
+        final String userCookies = loginPrefs.getUserCookies();
+        if (userCookies != null){
+            final String[] cookies = userCookies.split(";");
+            final CookieManager cookieManager = CookieManager.getInstance();
+            for (String cookie: cookies) {
+                cookieManager.setCookie(config.getApiHostURL(), cookie);
+            }
+            authSessionCookieExpiration = System.currentTimeMillis() + FRESHNESS_INTERVAL;
+            EventBus.getDefault().post(new SessionIdRefreshEvent(true));
+        } else if (loginCall == null || loginCall.isCanceled()) {
             loginCall = loginService.login();
             loginCall.enqueue(new Callback<RequestBody>() {
                 @Override
@@ -98,13 +108,5 @@ public class EdxCookieManager {
 
     public boolean isSessionCookieMissingOrExpired() {
         return authSessionCookieExpiration < System.currentTimeMillis();
-    }
-
-    /**
-     * Set a special cookie so that the server knows that the request for the course upsell
-     * revenue workflow is coming from mobile end.
-     */
-    public void setMobileCookie() {
-        CookieManager.getInstance().setCookie(config.getApiHostURL(), REV_934_COOKIE);
     }
 }

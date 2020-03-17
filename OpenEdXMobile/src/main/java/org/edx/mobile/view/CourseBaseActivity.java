@@ -14,13 +14,11 @@ import org.edx.mobile.course.CourseAPI;
 import org.edx.mobile.http.notifications.FullScreenErrorNotification;
 import org.edx.mobile.http.notifications.SnackbarErrorNotification;
 import org.edx.mobile.interfaces.RefreshListener;
-import org.edx.mobile.model.api.CourseUpgradeResponse;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
 import org.edx.mobile.model.course.BlockPath;
 import org.edx.mobile.model.course.CourseComponent;
 import org.edx.mobile.model.course.CourseStructureV1Model;
 import org.edx.mobile.services.CourseManager;
-import org.edx.mobile.util.Config;
 import org.edx.mobile.util.NetworkUtil;
 import org.edx.mobile.view.common.MessageType;
 import org.edx.mobile.view.common.TaskProcessCallback;
@@ -53,13 +51,8 @@ public abstract  class CourseBaseActivity  extends BaseFragmentActivity
     @Inject
     CourseManager courseManager;
 
-    @Inject
-    Config config;
-
     protected EnrolledCoursesResponse courseData;
-    protected CourseUpgradeResponse courseUpgradeData;
     protected String courseComponentId;
-    protected String blocksApiVersion;
 
     private Call<CourseStructureV1Model> getHierarchyCall;
 
@@ -106,19 +99,16 @@ public abstract  class CourseBaseActivity  extends BaseFragmentActivity
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(Router.EXTRA_COURSE_DATA, courseData);
-        outState.putParcelable(Router.EXTRA_COURSE_UPGRADE_DATA, courseUpgradeData);
         outState.putString(Router.EXTRA_COURSE_COMPONENT_ID, courseComponentId);
     }
 
     protected void restore(Bundle savedInstanceState) {
-        blocksApiVersion = config.getApiUrlVersionConfig().getBlocksApiVersion();
         courseData = (EnrolledCoursesResponse) savedInstanceState.getSerializable(Router.EXTRA_COURSE_DATA);
-        courseUpgradeData = savedInstanceState.getParcelable(Router.EXTRA_COURSE_UPGRADE_DATA);
         courseComponentId = savedInstanceState.getString(Router.EXTRA_COURSE_COMPONENT_ID);
 
         if (courseComponentId == null) {
             final String courseId = courseData.getCourse().getId();
-            getHierarchyCall = courseApi.getCourseStructure(blocksApiVersion, courseId);
+            getHierarchyCall = courseApi.getCourseStructure(courseId);
             getHierarchyCall.enqueue(new CourseAPI.GetCourseStructureCallback(this, courseId,
                     new ProgressViewController(progressWheel), errorNotification,
                     snackbarErrorNotification, this) {
@@ -201,7 +191,7 @@ public abstract  class CourseBaseActivity  extends BaseFragmentActivity
 
     protected boolean isOnCourseOutline(){
         if (courseComponentId == null) return true;
-        CourseComponent outlineComp = courseManager.getComponentById(blocksApiVersion,
+        CourseComponent outlineComp = courseManager.getComponentById(
                 courseData.getCourse().getId(), courseComponentId);
         BlockPath outlinePath = outlineComp.getPath();
         int outlinePathSize = outlinePath.getPath().size();

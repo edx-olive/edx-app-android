@@ -1,6 +1,5 @@
 package org.edx.mobile.base;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -56,11 +55,8 @@ public abstract class BaseSingleFragmentActivity extends BaseFragmentActivity im
         final ViewGroup parent = (ViewGroup) toolbarPlaceholder.getParent();
         final int index = parent.indexOfChild(toolbarPlaceholder);
         parent.removeView(toolbarPlaceholder);
-        int toolbarLayoutId = getToolbarLayoutId();
-        if (toolbarLayoutId >= 0) {
-            final View toolbar = getLayoutInflater().inflate(toolbarLayoutId, parent, false);
-            parent.addView(toolbar, index);
-        }
+        final View toolbar = getLayoutInflater().inflate(getToolbarLayoutId(), parent, false);
+        parent.addView(toolbar, index);
     }
 
     @LayoutRes
@@ -101,15 +97,6 @@ public abstract class BaseSingleFragmentActivity extends BaseFragmentActivity im
     }
 
     public abstract Fragment getFirstFragment();
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        final BaseFragment baseFragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(FIRST_FRAG_TAG);
-        if (baseFragment != null) {
-            baseFragment.onNewIntent(intent);
-        }
-    }
 
     protected void showLoadingProgress() {
         if (progressSpinner != null) {
