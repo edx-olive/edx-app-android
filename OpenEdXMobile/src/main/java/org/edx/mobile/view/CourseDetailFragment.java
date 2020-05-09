@@ -9,11 +9,14 @@ package org.edx.mobile.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.google.inject.Inject;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.widget.IconImageView;
@@ -39,6 +45,8 @@ import org.edx.mobile.http.callback.CallTrigger;
 import org.edx.mobile.http.callback.ErrorHandlingCallback;
 import org.edx.mobile.logger.Logger;
 import org.edx.mobile.model.api.EnrolledCoursesResponse;
+import org.edx.mobile.model.course.BlockModel;
+import org.edx.mobile.model.course.VideoBlockModel;
 import org.edx.mobile.util.StandardCharsets;
 import org.edx.mobile.util.WebViewUtil;
 import org.edx.mobile.util.images.CourseCardUtils;
@@ -98,6 +106,9 @@ public class CourseDetailFragment extends BaseFragment {
     @Inject
     IEdxEnvironment environment;
 
+    private YouTubePlayer youTubePlayer;
+    private ViewGroup mMainContainer;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,17 +132,105 @@ public class CourseDetailFragment extends BaseFragment {
         mHeaderImageView = (ImageView) view.findViewById(R.id.header_image_view);
         mHeaderPlayIcon = (ImageView) view.findViewById(R.id.header_play_icon);
         mCourseDetailLayout = (LinearLayout) view.findViewById(R.id.dashboard_detail);
+        mMainContainer = view.findViewById(R.id.main_container);
 
         mHeaderPlayIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri = Uri.parse(courseDetail.media.course_video.uri);
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
+                if (environment.getConfig().getEmbeddedYoutubeConfig().isYoutubeEnabled()) {
+//                    BlockModel model = new BlockModel();
+//                    model.data =
+//                    CourseUnitYoutubeVideoFragment fragment = CourseUnitYoutubeVideoFragment.newInstance()
+                    YouTubePlayerSupportFragment youTubePlayerFragment = new YouTubePlayerSupportFragment();
+                    String apiKey = environment.getConfig().getEmbeddedYoutubeConfig().getYoutubeApiKey();
+                    if (apiKey == null || apiKey.isEmpty()) {
+                        return;
+                    }
+                    youTubePlayerFragment.initialize(apiKey, new YouTubePlayer.OnInitializedListener() {
+                        @Override
+                        public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
+                            final int orientation = getResources().getConfiguration().orientation;
+                            if (!wasRestored) {
+                                Uri uri = Uri.parse(courseDetail.media.course_video.uri);
+                                String v = uri.getQueryParameter("v");
+                                player.loadVideo(v);
+                                youTubePlayer = player;
+                                player.setPlayerStateChangeListener(new YouTubePlayer.PlayerStateChangeListener() {
+                                    @Override
+                                    public void onLoading() {
+
+                                    }
+
+                                    @Override
+                                    public void onLoaded(String s) {
+
+                                    }
+
+                                    @Override
+                                    public void onAdStarted() {
+
+                                    }
+
+                                    @Override
+                                    public void onVideoStarted() {
+
+                                    }
+
+                                    @Override
+                                    public void onVideoEnded() {
+                                        mMainContainer.setVisibility(View.VISIBLE);
+                                    }
+
+                                    @Override
+                                    public void onError(YouTubePlayer.ErrorReason errorReason) {
+                                        mMainContainer.setVisibility(View.VISIBLE);
+                                    }
+                                });
+                                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                    youTubePlayer.setFullscreen(true);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+
+                        }
+                    });
+
+                    try {
+                        FragmentManager fm = getChildFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        ft.replace(R.id.player_container, youTubePlayerFragment, "player");
+                        ft.commit();
+                        mMainContainer.setVisibility(View.INVISIBLE);
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                } else {
+                    Uri uri = Uri.parse(courseDetail.media.course_video.uri);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        updateUIForOrientation();
+    }
+
+    private void updateUIForOrientation() {
+        final int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE && youTubePlayer != null) {
+            youTubePlayer.setFullscreen(true);
+        } else if (youTubePlayer != null) {
+            youTubePlayer.setFullscreen(false);
+        }
     }
 
     /**
@@ -286,7 +385,7 @@ public class CourseDetailFragment extends BaseFragment {
 
     /**
      * Sets the onClickListener and the text for the enrollment button.
-     *
+     * <p>
      * If the current course is found in the list of cached course enrollment list, the button will
      * be for viewing a course, otherwise, it will be used to enroll in a course. One clicked, user
      * is then taken to the dashboard for target course.
