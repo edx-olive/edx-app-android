@@ -621,4 +621,6 @@
     <string name="rating_bar_selection">{rating} מתוך {num_of_stars}</string>
     <!--Title of the Whats New screen e.g. Version 2.8.1 New Features-->
     <string name="whats_new_title">מאפיינים חדשים בגרסה {version_number}</string>
+    <string name="success">הרשמה בוצעה בהצלחה</string>
+    <string name="activation_email_sent">נשלח מייל אקטיבציה</string>
 </resources>

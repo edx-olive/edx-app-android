@@ -81,8 +81,8 @@ public class TextUtils {
 
         final SpannableString termsSpan = new SpannableString(terms);
         termsSpan.setSpan(new URLSpan(TextUtils.createAppUri(
-                resources.getString(R.string.terms_of_service_title),
-                resources.getString(R.string.terms_file_link))),
+                resources.getString(R.string.terms_of_service_title), resources.getString(R.string.terms_file_link)
+                )),
                 0, terms.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         final SpannableString privacyPolicySpan = new SpannableString(privacyPolicy);

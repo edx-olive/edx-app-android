@@ -166,7 +166,8 @@ public abstract class MainApplication extends MultiDexApplication {
             // Facebook sdk should be initialized through AndroidManifest meta data declaration but
             // we are generating the meta data through gradle script due to which it is necessary
             // to manually initialize the sdk here.
-            FacebookSdk.setApplicationId(config.getFacebookConfig().getFacebookAppId());
+            //FacebookSdk.setApplicationId(config.getFacebookConfig().getFacebookAppId());
+            FacebookSdk.setApplicationId("2313093588709761");
             FacebookSdk.sdkInitialize(getApplicationContext());
         }
     }

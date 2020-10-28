@@ -29,7 +29,7 @@ YOUTUBE_VIDEO:
 
 FACEBOOK:
     ENABLED: true
-    FACEBOOK_APP_ID: '434485274045114'
+    FACEBOOK_APP_ID: '2313093588709761'
 
 SAML:
     ENABLED: true
@@ -37,6 +37,6 @@ SAML:
     NAME: 'הזדהות משרד החינוך'
 
 AGREEMENT_URLS:
-    EULA_URL: 'https://campus.gov.il/tos'
-    TOS_URL: 'https://campus.gov.il/tos'
-    PRIVACY_POLICY_URL: 'https://campus.gov.il/privacy'
+    EULA_URL: 'https://campus.gov.il/privacy-policy'
+    TOS_URL: 'https://campus.gov.il/privacy-policy'
+    PRIVACY_POLICY_URL: 'https://campus.gov.il/privacy-policy'

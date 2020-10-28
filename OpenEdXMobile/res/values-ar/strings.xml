@@ -620,5 +620,6 @@
   <!--Title of the Whats New screen e.g. Version 2.8.1 New Features-->
   <string name="whats_new_title">الإصدار {version_number} الميزات الجديدة</string>
   <string name="view_downloads">انقر نقرًا مزدوجًا لعرض التنزيلات الحالية.</string>
-  <string name="lbl_cc_cancel">لا شيء</string>  
+  <string name="lbl_cc_cancel">لا شيء</string>
+    <string name="success">Success</string>
 </resources>

@@ -315,9 +315,17 @@ public class RegisterActivity extends BaseFragmentActivity
         final SocialFactory.SOCIAL_SOURCE_TYPE backsourceType = SocialFactory.SOCIAL_SOURCE_TYPE.fromString(provider);
         final RegisterTask task = new RegisterTask(this, parameters, access_token, backsourceType) {
             @Override
-            public void onSuccess(AuthResponse auth) {
-                environment.getAnalyticsRegistry().trackRegistrationSuccess(appVersion, provider);
-                onUserLoginSuccess(auth.profile);
+            public void onSuccess(final AuthResponse auth) {
+                showAlertDialog(getString(R.string.success), getString(R.string.activation_email_sent));
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        environment.getAnalyticsRegistry().trackRegistrationSuccess(appVersion, provider);
+                        onUserLoginSuccess(auth.profile);
+                    }
+                }, 5000);
             }
 
             @Override
