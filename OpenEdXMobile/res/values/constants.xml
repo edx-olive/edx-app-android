@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="eula_file_link" tools:ignore="MissingTranslation">https://campus.gov.il/privacy-policy</string>
     <string name="privacy_file_link">https://campus.gov.il/privacy-policy</string>
-    <string name="terms_file_link">https://campus.gov.il/privacy-policy</string>
+    <string name="terms_file_link">https://campus.gov.il/accessibility-statement</string>
 
     <!-- Speed Test.
     Once this feature is ready, migrate this to the YAML config -->

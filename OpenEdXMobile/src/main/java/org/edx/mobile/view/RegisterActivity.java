@@ -369,7 +369,10 @@ public class RegisterActivity extends BaseFragmentActivity
                                 }
                             }, getString(android.R.string.cancel), null);
                 } else {
-                    RegisterActivity.this.showAlertDialog(null, ErrorUtils.getErrorMessage(ex, RegisterActivity.this));
+                    //RegisterActivity.this.showAlertDialog(null, ErrorUtils.getErrorMessage(ex, RegisterActivity.this));
+                    RegisterActivity.this.showAlertDialog(null, ResourceUtil.getFormattedString(context.getResources(),
+                            R.string.error_account_not_linked_desc_fb_2,
+                            "platform_name", environment.getConfig().getPlatformName()).toString());
                 }
             }
         };

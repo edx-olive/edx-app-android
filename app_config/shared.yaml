@@ -37,6 +37,6 @@ SAML:
     NAME: 'הזדהות משרד החינוך'
 
 AGREEMENT_URLS:
-    EULA_URL: 'https://campus.gov.il/privacy-policy'
-    TOS_URL: 'https://campus.gov.il/privacy-policy'
+    EULA_URL: 'https://campus.gov.il/accessibility-statement/'
+    TOS_URL: 'https://campus.gov.il/accessibility-statement/'
     PRIVACY_POLICY_URL: 'https://campus.gov.il/privacy-policy'
