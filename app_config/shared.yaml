@@ -1,7 +1,7 @@
 # CORE SETTINGS
 API_HOST_URL: 'https://courses.campus.gov.il'
-ENVIRONMENT_DISPLAY_NAME: 'קמפוס'
-PLATFORM_NAME: 'קמפוס'
+ENVIRONMENT_DISPLAY_NAME: 'קמפוס IL'
+PLATFORM_NAME: 'קמפוס IL'
 PLATFORM_DESTINATION_NAME: 'campus.gov.il'
 FEEDBACK_EMAIL_ADDRESS: 'support@campus.com'
 OAUTH_CLIENT_ID: 'f225309cd88d9cca6e8d'

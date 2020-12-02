@@ -71,8 +71,10 @@ public class AccountFragment extends BaseFragment {
             }
         });
 
+//        binding.tvVersionNo.setText(String.format("%s %s %s", getString(R.string.label_version),
+//                BuildConfig.VERSION_NAME, environment.getConfig().getEnvironmentDisplayName()));
         binding.tvVersionNo.setText(String.format("%s %s %s", getString(R.string.label_version),
-                BuildConfig.VERSION_NAME, environment.getConfig().getEnvironmentDisplayName()));
+                "2.20.4", environment.getConfig().getEnvironmentDisplayName()));
 
         return binding.getRoot();
     }

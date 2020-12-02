@@ -200,8 +200,9 @@ public class URLInterceptorWebViewClient extends WebViewClient {
             // open URL in external web browser
             // return true means the host application handles the url
             // this should open the URL in the browser with user's confirmation
-            BrowserUtil.open(activity, url);
-            return true;
+            //BrowserUtil.open(activity, url);
+            //return true;
+            return false;
         } else {
             // return false means the current WebView handles the url.
             return false;
