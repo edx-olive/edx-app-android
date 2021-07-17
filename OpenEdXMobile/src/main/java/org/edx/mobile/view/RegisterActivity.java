@@ -316,7 +316,7 @@ public class RegisterActivity extends BaseFragmentActivity
         final RegisterTask task = new RegisterTask(this, parameters, access_token, backsourceType) {
             @Override
             public void onSuccess(final AuthResponse auth) {
-                showAlertDialog(getString(R.string.success), getString(R.string.activation_email_sent));
+                showAlertDialog(getString(R.string.activate_your_account), getString(R.string.activation_email_sent));
 
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {

@@ -563,7 +563,7 @@ public class Config {
     /// Please keep this alphabetized
 
     public String getApiHostURL() {
-        return getString(API_HOST_URL);
+        return BuildConfig.FLAVOR.contains("staging") ? "https://courses.stage.campus.gov.il" : getString(API_HOST_URL);
     }
 
     // User facing name of the platform like "edX"
@@ -586,7 +586,7 @@ public class Config {
     }
 
     public String getOAuthClientId() {
-        return getString(OAUTH_CLIENT_ID);
+        return BuildConfig.FLAVOR.contains("staging") ? "2c46dcd6f2abcd54264f" : getString(OAUTH_CLIENT_ID);
     }
 
     /**

@@ -42,7 +42,9 @@ import org.edx.mobile.util.Config;
 import org.edx.mobile.util.NetworkUtil;
 import org.edx.mobile.util.WebViewUtil;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 import okhttp3.Cookie;
@@ -123,6 +125,7 @@ public class AuthenticatedWebView extends FrameLayout implements RefreshListener
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDefaultTextEncodingName("utf-8");
         webViewClient = new URLInterceptorWebViewClient(fragmentActivity, webView) {
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
@@ -248,6 +251,9 @@ public class AuthenticatedWebView extends FrameLayout implements RefreshListener
             } else {
                 didReceiveError = false;
                 setLanguageCookie();
+
+//                Map<String, String>  headers = new HashMap<>();
+//                headers.put("Content-Type", "text/html; charset=UTF-8");
                 webView.loadUrl(url);
             }
         }

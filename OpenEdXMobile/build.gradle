@@ -137,6 +137,10 @@ dependencies {
     // Google Firebase
     implementation "com.google.firebase:firebase-core:16.0.1"
     implementation "com.google.firebase:firebase-messaging:17.1.0"
+//    implementation "com.google.firebase:firebase-analytics:17.1.0"
+//    implementation ("com.google.firebase:firebase-crashlytics:17.1.0") {
+//        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+//    }
 
     implementation 'com.facebook.android:facebook-login:4.42.0'
     implementation 'com.google.code.gson:gson:2.7'
@@ -226,6 +230,8 @@ dependencies {
     androidTestImplementation ('org.mockito:mockito-core:1.10.19'){
         exclude group: 'org.hamcrest'
     }
+
+    implementation "com.github.YarikSOffice:lingver:1.3.0"
 }
 
 configurations {
@@ -422,6 +428,9 @@ android {
     }
 
     productFlavors {
+        staging {
+            applicationId "staging.campus.gov.il"
+        }
         prod {
             if (project.hasProperty('APPLICATION_ID')) {
                 applicationId APPLICATION_ID

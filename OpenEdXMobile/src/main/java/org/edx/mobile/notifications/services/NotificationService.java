@@ -40,7 +40,7 @@ public class NotificationService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        final IEdxEnvironment environment = MainApplication.getEnvironment(this);
+        final IEdxEnvironment environment = MainApplication.getEnvironment(MainApplication.instance());
 
         if (!environment.getConfig().areFirebasePushNotificationsEnabled()) {
             // Do not process Notifications when they are disabled.
@@ -64,10 +64,10 @@ public class NotificationService extends FirebaseMessagingService {
      * Create and show a simple notification containing the message data.
      */
     private void sendNotification(String title, String messageBody) {
-        final Intent intent = new Intent(this, SplashActivity.class);
+        final Intent intent = new Intent(MainApplication.instance(), SplashActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         final PendingIntent pendingIntent = PendingIntent.getActivity(
-                this,
+                MainApplication.instance(),
                 0 /* Request code */,
                 intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -75,7 +75,7 @@ public class NotificationService extends FirebaseMessagingService {
         final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         // Build out the Notification and set the intent to direct the user to the application
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, DEFAULT_NOTIFICATION_CHANNEL_ID)
+                new NotificationCompat.Builder(MainApplication.instance(), DEFAULT_NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle(title)
                         .setContentText(messageBody)
@@ -84,13 +84,13 @@ public class NotificationService extends FirebaseMessagingService {
                         .setContentIntent(pendingIntent);
 
         final NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) MainApplication.instance().getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             final NotificationChannel channel = new NotificationChannel(
                     DEFAULT_NOTIFICATION_CHANNEL_ID,
-                    getResources().getString(R.string.default_notification_channel_title),
+                    MainApplication.instance().getResources().getString(R.string.default_notification_channel_title),
                     NotificationManager.IMPORTANCE_DEFAULT
             );
             try {

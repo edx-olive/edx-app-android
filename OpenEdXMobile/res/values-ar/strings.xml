@@ -622,4 +622,13 @@
   <string name="view_downloads">انقر نقرًا مزدوجًا لعرض التنزيلات الحالية.</string>
   <string name="lbl_cc_cancel">لا شيء</string>
     <string name="success">Success</string>
+    <string name="activate_your_account">Activate your account</string>
+  <string name="activation_email_sent">Check your inbox for an account activation link from קמפוס. If you need help, please contact support.</string>
+    <string name="settings_language_top">Change language</string>
+  <string name="settings_language_bottom">English</string>
+  <string name="spanish">Spanish</string>
+  <string name="english">English</string>
+  <string name="arabic">Arabic</string>
+  <string name="hebrew">Hebrew</string>
+    <string name="restart_app">Restart app</string>
 </resources>

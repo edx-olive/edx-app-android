@@ -4,9 +4,11 @@ package org.edx.mobile.base;
 import android.app.Application;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 
@@ -20,6 +22,7 @@ import com.google.inject.Module;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.newrelic.agent.android.NewRelic;
+import com.yariksoffice.lingver.Lingver;
 
 import org.edx.mobile.BuildConfig;
 import org.edx.mobile.R;
@@ -37,6 +40,7 @@ import org.edx.mobile.module.prefs.PrefManager;
 import org.edx.mobile.module.storage.IStorage;
 import org.edx.mobile.receivers.NetworkConnectivityReceiver;
 import org.edx.mobile.util.Config;
+import org.edx.mobile.util.LocaleManager;
 import org.edx.mobile.util.NetworkUtil;
 import org.edx.mobile.util.NotificationUtil;
 
@@ -75,7 +79,26 @@ public abstract class MainApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         init();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                throw new RuntimeException("Test Crash");
+            }
+        }, 6000);
     }
+
+//    @Override
+//    protected void attachBaseContext(Context base) {
+//        super.attachBaseContext(LocaleHelper.setLocale(base));
+//    }
+//
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        LocaleManager.setLocale(this);
+//    }
 
     /**
      * Initializes the request manager, image cache,
@@ -87,6 +110,9 @@ public abstract class MainApplication extends MultiDexApplication {
         // ref: https://github.com/roboguice/roboguice/wiki/RoboBlender-wiki#disabling-roboblender
         // ref: https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration
         RoboGuice.setUseAnnotationDatabases(false);
+
+        Lingver.init(this, "en");
+
         injector = RoboGuice.getOrCreateBaseApplicationInjector((Application) this, RoboGuice.DEFAULT_STAGE,
                 (Module) RoboGuice.newDefaultRoboModule(this), (Module) new EdxDefaultModule(this));
 

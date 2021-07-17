@@ -623,4 +623,12 @@
     <string name="whats_new_title">מאפיינים חדשים בגרסה {version_number}</string>
     <string name="success">הרשמה בוצעה בהצלחה</string>
     <string name="activation_email_sent">נשלח מייל אקטיבציה</string>
+    <string name="activate_your_account">Activate your account</string>
+    <string name="settings_language_top">החלף שפה</string>
+    <string name="settings_language_bottom">עברית</string>
+    <string name="spanish">ספרדית</string>
+    <string name="english">אנגלית</string>
+    <string name="arabic">ערבית</string>
+    <string name="hebrew">עברית</string>
+    <string name="restart_app">אתחול מחדש</string>
 </resources>
