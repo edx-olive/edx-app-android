@@ -130,17 +130,29 @@ dependencies {
     // For the optional Nullable annotation
     implementation "com.android.support:support-annotations:${SUPPORT_LIBRARY_VERSION}"
 
+//    implementation "com.google.android.gms:play-services-plus:17.0.0"
+//    implementation "com.google.android.gms:play-services-analytics:17.0.0"
+//    implementation "com.google.android.gms:play-services-auth:19.0.0"
+//    implementation "com.google.android.gms:play-services-ads:20.2.0"
     implementation "com.google.android.gms:play-services-plus:15.0.1"
     implementation "com.google.android.gms:play-services-analytics:16.0.1"
     implementation "com.google.android.gms:play-services-auth:15.0.1"
     implementation "com.google.android.gms:play-services-ads:15.0.1"
+
     // Google Firebase
-    implementation "com.google.firebase:firebase-core:16.0.1"
-    implementation "com.google.firebase:firebase-messaging:17.1.0"
-//    implementation "com.google.firebase:firebase-analytics:17.1.0"
-//    implementation ("com.google.firebase:firebase-crashlytics:17.1.0") {
+//    implementation "com.google.firebase:firebase-core:19.0.0"
+//    implementation "com.google.firebase:firebase-messaging:22.0.0"
+//    implementation "com.google.firebase:firebase-analytics:19.0.0"
+//    implementation ("com.google.firebase:firebase-crashlytics:18.1.0") {
 //        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
 //    }
+    implementation "com.google.firebase:firebase-core:16.0.1"
+    implementation "com.google.firebase:firebase-messaging:17.6.0"
+    implementation "com.google.firebase:firebase-analytics:16.0.1"
+//    implementation ("com.google.firebase:firebase-crashlytics:16.0.1") {
+//        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+//    }
+
 
     implementation 'com.facebook.android:facebook-login:4.42.0'
     implementation 'com.google.code.gson:gson:2.7'
@@ -172,10 +184,10 @@ dependencies {
     // Segment Library
     implementation 'com.segment.analytics.android:analytics:4.2.6'
 
-    implementation('com.segment.analytics.android.integrations:google-analytics:1.0.0') {
-        exclude module: 'play-services-analytics'
-        transitive = true
-    }
+//    implementation('com.segment.analytics.android.integrations:google-analytics:1.0.0') {
+//        exclude module: 'play-services-analytics'
+//        transitive = true
+//    }
 
     // Crashlytics Kit
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
@@ -495,3 +507,5 @@ android.applicationVariants.all { variant ->
         }
     }
 }
+
+apply plugin: 'com.google.gms.google-services'
